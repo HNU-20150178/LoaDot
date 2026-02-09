@@ -34,7 +34,7 @@ public class CharacterService {
                 dto.getCharacterName(),
                 "서버정보미구현", // API 응답에 따라 수정 필요
                 dto.getCharacterClassName(),
-                Double.parseDouble(dto.getItemMaxLevel().replace(",", "")) // "1,620.00" -> 1620.0
+                Double.parseDouble(dto.getItemAvgLevel().replace(",", "")) // "1,620.00" -> 1620.0
         );
 
         // 3. DB에 저장 (이미 있으면 업데이트, 없으면 삽입)
