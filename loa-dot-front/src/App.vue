@@ -57,14 +57,17 @@ const resetSearch = () => {
 
     <div v-else class="result-card">
       <div class="card-header">
-        <span class="server">{{ characterData.serverName }}</span>
+        <span class="server-badge">{{ characterData.serverName }}</span>
         <span class="class-badge">{{ characterData.characterClass }}</span>
       </div>
+      <span class="server">길드 </span>{{ characterData.guildName }}
+      <span class="server">원정대 </span>Lv.{{ characterData.expeditionLevel }}
       <h2>{{ characterData.name }}</h2>
       <div class="level-info">
         <span class="label">아이템 레벨</span>
         <span class="value">{{ characterData.itemLevel }}</span>
       </div>
+      <img :src="characterData.characterImage">
       
       <button class="back-btn" @click="resetSearch">다시 검색</button>
     </div>
@@ -73,7 +76,6 @@ const resetSearch = () => {
 </template>
 
 <style scoped>
-/* 로스트아크 느낌의 다크 테마 스타일 */
 .app-container {
   display: flex;
   flex-direction: column;
@@ -110,6 +112,7 @@ button:hover { background: #00b5b6; }
 }
 .card-header { display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; }
 .server { color: #888; font-size: 0.9rem; }
+.server-badge { background: #333; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; }
 .class-badge { background: #333; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; }
 h2 { font-size: 2.5rem; margin: 10px 0; color: white; }
 .level-info { background: #2a2a2a; padding: 15px; border-radius: 8px; margin: 20px 0; }

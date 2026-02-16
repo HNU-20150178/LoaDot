@@ -19,12 +19,18 @@ public class Character {
     private String serverName;
     private String characterClass;
     private Double itemLevel;
+    private String guildName;
+    private String expeditionLevel;
+    private String characterImage;
 
     // 비즈니스 로직을 위한 생성자
-    public Character(String name, String serverName, String characterClass, Double itemLevel) {
+    public Character(String name, String serverName, String characterClass, Double itemLevel, String guildName, String expeditionLevel, String characterImage) {
         this.name = name;
         this.serverName = serverName;
         this.characterClass = characterClass;
         this.itemLevel = itemLevel;
+        this.guildName = guildName;
+        this.expeditionLevel = expeditionLevel;
+        this.characterImage = characterImage;
     }
 }

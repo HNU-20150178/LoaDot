@@ -17,4 +17,16 @@ public class CharacterInfoDto {
     @JsonProperty("ItemAvgLevel")
     private String itemAvgLevel;
 
+    @JsonProperty("ServerName")
+    private String serverName;
+
+    @JsonProperty("GuildName")
+    private String guildName;
+
+    @JsonProperty("ExpeditionLevel")
+    private String expeditionLevel;
+
+    @JsonProperty("CharacterImage")
+    private String characterImage;
+
 }
