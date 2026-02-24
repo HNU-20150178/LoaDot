@@ -18,14 +18,14 @@ public class CharacterHistory {
     @JoinColumn(name = "character_id")
     private com.loadot.entity.Character character;
 
-    private Double itemAvgLevel;
-    private Long combatPower;
+    private Double itemAvgLevelDouble;
+    private Double combatPowerDouble;
     private LocalDateTime recordedAt;
 
-    public CharacterHistory(Character character, Double itemAvgLevel, Long combatPowerLong) {
+    public CharacterHistory(Character character, Double itemAvgLevelDouble, Double combatPowerDouble) {
         this.character = character;
-        this.itemAvgLevel = itemAvgLevel;
-        this.combatPower = combatPowerLong;
+        this.itemAvgLevelDouble = itemAvgLevelDouble;
+        this.combatPowerDouble = combatPowerDouble;
         this.recordedAt = LocalDateTime.now();
     }
 }

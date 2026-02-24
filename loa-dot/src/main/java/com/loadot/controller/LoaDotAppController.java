@@ -1,6 +1,5 @@
 package com.loadot.controller;
 
-import com.loadot.dto.CharacterInfoDto;
 import com.loadot.entity.Character;
 import com.loadot.service.CharacterService;
 import lombok.RequiredArgsConstructor;

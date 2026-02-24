@@ -22,7 +22,7 @@ const handleReset = () => {
   <div class="result-card">
     <div class="card-header">
       <span class="server-badge">{{ characterData.serverName }}</span>
-      <span class="class-badge">{{ characterData.characterClass }}</span>
+      <span class="class-badge">{{ characterData.characterClassName }}</span>
     </div>
     
     <div class="character-info">
@@ -31,12 +31,15 @@ const handleReset = () => {
     <div class="character-info">
       <span class="server">원정대 </span>Lv.{{ characterData.expeditionLevel }}
     </div>
+    <div class="character-info">
+      <span class="server">전투력 </span>{{ Number(characterData.combatPowerDouble || 0).toFixed(2) }}
+    </div>
     
     <h2>{{ characterData.name }}</h2>
     
     <div class="level-info">
       <span class="label">아이템 레벨</span>
-      <span class="value">{{ characterData.itemLevel }}</span>
+      <span class="value">{{ Number(characterData.itemAvgLevelDouble || 0).toFixed(2) }}</span>
     </div>
     
     <img 

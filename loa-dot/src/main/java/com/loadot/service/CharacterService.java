@@ -53,17 +53,17 @@ public class CharacterService {
         Optional<CharacterHistory> latestHistory = characterHistoryRepository.findTop1ByCharacterOrderByRecordedAtDesc(character);
 
         // 2. 전체 히스토리 중 최고 전투력 조회 (전투력 비교용)
-        Long maxCombatPowerResult = characterHistoryRepository.findMaxCombatPowerByCharacter(character);
+        Double maxCombatPowerResult = characterHistoryRepository.findMaxCombatPowerByCharacter(character);
 
         // 결과가 null이면 0L을 사용하도록 안전하게 처리
-        long maxCombatPower = (maxCombatPowerResult != null) ? maxCombatPowerResult : 0L;
+        Double maxCombatPower = (maxCombatPowerResult != null) ? maxCombatPowerResult : 0L;
 
-        boolean isLevelChanged = latestHistory.isEmpty() || !latestHistory.get().getItemAvgLevel().equals(character.getItemAvgLevelDouble());
-        boolean isCombatPowerNewRecord = character.getCombatPowerLong() > maxCombatPower;
+        boolean isLevelChanged = latestHistory.isEmpty() || !latestHistory.get().getItemAvgLevelDouble().equals(character.getItemAvgLevelDouble());
+        boolean isCombatPowerNewRecord = character.getCombatPowerDouble() > maxCombatPower;
 
         // 아이템 레벨이 변했거나, 전투력이 경신되었다면 저장
         if (isLevelChanged || isCombatPowerNewRecord) {
-            Long combatPowerToRecord = Math.max(character.getCombatPowerLong(), maxCombatPower);
+            Double combatPowerToRecord = Math.max(character.getCombatPowerDouble(), maxCombatPower);
 
             characterHistoryRepository.save(new CharacterHistory(character, character.getItemAvgLevelDouble(), combatPowerToRecord));
         }

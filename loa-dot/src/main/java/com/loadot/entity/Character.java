@@ -5,10 +5,8 @@ import com.loadot.util.DataUtil;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter
@@ -17,7 +15,10 @@ import java.util.List;
 public class Character {
 
     @Id
-    @Column(name = "character_name") // 캐릭터 이름은 유니크하므로 PK로 사용 가능 (또는 Long id 권장)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // 시스템 내부용 고유 번호 (기본키)
+
+    @Column(name = "character_name", unique = true)
     private String characterName;
 
     private String serverName;
@@ -28,11 +29,11 @@ public class Character {
     private String itemAvgLevel;
     private Double itemAvgLevelDouble;
 
-    private String combatPower;       // 전투력
-    private Long combatPowerLong;       // 전투력
+    private String combatPower;      // 전투력
+    private Double combatPowerDouble;
 
-    private String title;           // 칭호
-    private String guildName;       // 길드명
+    private String title;            // 칭호
+    private String guildName;        // 길드명
     private String guildMemberGrade; // 길드 직위
 
     private Integer townLevel;      // 영지 레벨
@@ -56,9 +57,9 @@ public class Character {
         this.characterLevel = dto.getCharacterLevel();
         this.expeditionLevel = dto.getExpeditionLevel();
         this.itemAvgLevel = dto.getItemAvgLevel();
-        this.itemAvgLevelDouble = DataUtil.parseLevelToDouble(dto.getItemAvgLevel());
+        this.itemAvgLevelDouble = DataUtil.parseStringToDouble(dto.getItemAvgLevel());
         this.combatPower = dto.getCombatPower();
-        this.combatPowerLong = DataUtil.stringToLong(dto.getCombatPower());
+        this.combatPowerDouble = DataUtil.parseStringToDouble(dto.getCombatPower());
         this.title = dto.getTitle();
         this.guildName = dto.getGuildName();
         this.guildMemberGrade = dto.getGuildMemberGrade();
@@ -77,7 +78,9 @@ public class Character {
         this.characterLevel = dto.getCharacterLevel();
         this.expeditionLevel = dto.getExpeditionLevel();
         this.itemAvgLevel = dto.getItemAvgLevel();
-        this.combatPowerLong = DataUtil.stringToLong(dto.getCombatPower());
+        this.itemAvgLevelDouble = DataUtil.parseStringToDouble(dto.getItemAvgLevel());
+        this.combatPower = dto.getCombatPower();
+        this.combatPowerDouble = DataUtil.parseStringToDouble(dto.getCombatPower());
         this.title = dto.getTitle();
         this.guildName = dto.getGuildName();
         this.guildMemberGrade = dto.getGuildMemberGrade();
