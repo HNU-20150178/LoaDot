@@ -1,10 +1,16 @@
 <script setup>
 // 헤더
+// vuerouter 추가 예정
 </script>
 
 <template>
   <header>
-    <h1>LoaDot<span class="dot">.</span></h1>
+    <h1>
+      <router-link to="/" class="logo-link">
+      LoaDot
+      <span class="dot">.</span>
+      </router-link>
+    </h1>
   </header>
 </template>
 

@@ -42,10 +42,15 @@ public class Character {
     private Integer usingSkillPoint; // 사용 스킬 포인트
     private Integer totalSkillPoint; // 전체 스킬 포인트
 
-    private Integer honorPoint;      // 명예 포인트 (승급 단계 등)
+    private Integer honorPoint;      // 명예 포인트
 
     @Column(length = 1000)
     private String characterImage;   // 캐릭터 이미지 URL
+
+    private String symbol; // 에스더 symbol URL
+
+    @Column(length = 1000)
+    private String decorationEmblems; // 엠블럼 리스트
 
     private LocalDateTime updatedAt; // 마지막 업데이트 시간
 
@@ -69,6 +74,10 @@ public class Character {
         this.totalSkillPoint = dto.getTotalSkillPoint();
         this.honorPoint = dto.getHonorPoint();
         this.characterImage = dto.getCharacterImage();
+        this.symbol = dto.getDecorations().getSymbol();
+        if (dto.getDecorations().getEmblems() != null) {
+            this.decorationEmblems = String.join(",", dto.getDecorations().getEmblems());
+        }
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -85,6 +94,10 @@ public class Character {
         this.guildName = dto.getGuildName();
         this.guildMemberGrade = dto.getGuildMemberGrade();
         this.characterImage = dto.getCharacterImage();
+        this.symbol = dto.getDecorations().getSymbol();
+        if (dto.getDecorations().getEmblems() != null) {
+            this.decorationEmblems = String.join(",", dto.getDecorations().getEmblems());
+        }
         this.updatedAt = LocalDateTime.now();
         return this;
     }

@@ -28,6 +28,7 @@ const searchCharacter = async () => {
     
     if (result.success) {
       characterData.value = result.data;
+      console.log(characterData.value);
     } else {
       errorMsg.value = result.error;
     }
