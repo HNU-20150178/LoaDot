@@ -1,6 +1,6 @@
 package com.loadot.controller;
 
-import com.loadot.entity.Character;
+import com.loadot.dto.response.CharacterInfoResponse;
 import com.loadot.service.CharacterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +18,9 @@ public class LoaDotAppController {
 
 	// 2. HTTP GET 요청을 처리하고, 경로에 있는 이름을 변수로 받음
 	@GetMapping("/{characterName}")
-	public ResponseEntity<Character> getCharacterInfo(@PathVariable String characterName) {
-		// 3. 서비스에서 저장 및 반환된 Character 엔티티를 클라이언트에게 전달
-		Character character = characterService.getAndSaveCharacter(characterName);
-		return ResponseEntity.ok(character);
+	public ResponseEntity<CharacterInfoResponse> getCharacterInfo(@PathVariable String characterName) {
+		// 3. 서비스에서 저장 및 반환된 CharacterInfo response를 클라이언트에게 전달
+		CharacterInfoResponse response = characterService.getAndSaveCharacter(characterName);
+		return ResponseEntity.ok(response);
 	}
 }

@@ -1,6 +1,7 @@
 package com.loadot.service;
 
 import com.loadot.dto.CharacterInfoDto;
+import com.loadot.dto.response.CharacterInfoResponse;
 import com.loadot.entity.Character;
 import com.loadot.entity.CharacterHistory;
 import com.loadot.repository.CharacterHistoryRepository;
@@ -13,21 +14,21 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor // 생성자 주입 자동화 (WebClient, Repository 가져오기)
+@RequiredArgsConstructor
 public class CharacterService {
 
-    private final WebClient lostarkWebClient; // Config에서 만든 빈(Bean) 주입
+    private final WebClient lostarkWebClient;
     private final CharacterRepository characterRepository;
     private final CharacterHistoryRepository characterHistoryRepository;
 
     @Transactional
-    public Character getAndSaveCharacter(String characterName) {
+    public CharacterInfoResponse getAndSaveCharacter(String characterName) {
         // 로스트아크 API 호출 (캐릭터 정보 가져오기)
         CharacterInfoDto dto = lostarkWebClient.get()
                 .uri("/armories/characters/" + characterName + "/profiles")
                 .retrieve()
-                .bodyToMono(CharacterInfoDto.class) // JSON을 DTO로 변환
-                .block(); // 비동기를 동기 방식으로 기다림
+                .bodyToMono(CharacterInfoDto.class)
+                .block();
 
         if (dto == null) {
             throw new RuntimeException("캐릭터 정보를 찾을 수 없습니다.");
@@ -35,13 +36,14 @@ public class CharacterService {
 
         // DB에서 기존 캐릭터 확인 (없으면 신규 생성, 있으면 업데이트)
         Character character = characterRepository.findByCharacterName(characterName)
-                .map(existing -> existing.update(dto)) // 업데이트 로직
-                .orElseGet(() -> characterRepository.save(new Character(dto))); // 신규 생성
+                .map(existing -> existing.update(dto))
+                .orElseGet(() -> characterRepository.save(new Character(dto)));
 
         // 캐릭터 히스토리 테이블에 저장
         this.recordCharacterHistory(character);
 
-        return character;
+        // Entity -> Response DTO 변환 후 반환
+        return CharacterInfoResponse.from(character, dto);
     }
 
     /**
@@ -49,22 +51,15 @@ public class CharacterService {
      * @param character 검색된 현재 캐릭터 엔티티
      */
     private void recordCharacterHistory(Character character) {
-        // 1. 가장 최근의 히스토리
         Optional<CharacterHistory> latestHistory = characterHistoryRepository.findTop1ByCharacterOrderByRecordedAtDesc(character);
-
-        // 2. 전체 히스토리 중 최고 전투력 조회 (전투력 비교용)
         Double maxCombatPowerResult = characterHistoryRepository.findMaxCombatPowerByCharacter(character);
-
-        // 결과가 null이면 0L을 사용하도록 안전하게 처리
-        Double maxCombatPower = (maxCombatPowerResult != null) ? maxCombatPowerResult : 0L;
+        Double maxCombatPower = (maxCombatPowerResult != null) ? maxCombatPowerResult : 0.0;
 
         boolean isLevelChanged = latestHistory.isEmpty() || !latestHistory.get().getItemAvgLevelDouble().equals(character.getItemAvgLevelDouble());
         boolean isCombatPowerNewRecord = character.getCombatPowerDouble() > maxCombatPower;
 
-        // 아이템 레벨이 변했거나, 전투력이 경신되었다면 저장
         if (isLevelChanged || isCombatPowerNewRecord) {
             Double combatPowerToRecord = Math.max(character.getCombatPowerDouble(), maxCombatPower);
-
             characterHistoryRepository.save(new CharacterHistory(character, character.getItemAvgLevelDouble(), combatPowerToRecord));
         }
     }

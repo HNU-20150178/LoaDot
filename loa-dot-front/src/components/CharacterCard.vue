@@ -63,7 +63,7 @@ const handleReset = () => {
       </div>
     </div>
 
-    <!-- 캐릭터 이름 / 타이틀 -->
+    <!-- 캐릭터 이름/타이틀 -->
     <div class="character-title">
       <span class="char-title-text" v-if="characterData.title">{{ characterData.title }}</span>
       <h2 class="char-name">{{ characterData.characterName }}</h2>
@@ -89,7 +89,7 @@ const handleReset = () => {
       </div>
     </div>
 
-    <!-- 하단 길드 + 버튼 -->
+    <!-- 하단 길드+임시버튼 -->
     <div class="card-footer">
       <span class="guild-name">
         <span class="guild-icon">길드:</span>

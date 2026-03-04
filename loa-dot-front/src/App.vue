@@ -4,6 +4,7 @@ import { characterAPI } from './services/api'
 import AppHeader from './components/AppHeader.vue'
 import SearchBox from './components/SearchBox.vue'
 import CharacterCard from './components/CharacterCard.vue'
+import CharacterDetail from './components/CharacterDetail.vue'
 
 // --- 상태(State) 관리 ---
 const searchName = ref('')        // 입력한 닉네임
@@ -66,6 +67,10 @@ const resetSearch = () => {
       v-else
       :characterData="characterData"
       @reset="resetSearch"
+    />
+    <CharacterDetail 
+      v-if="characterData"
+      :characterData="characterData"
     />
 
   </div>
