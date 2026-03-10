@@ -1,5 +1,6 @@
 package com.loadot.service;
 
+import com.loadot.dto.CharacterArkPassiveDto;
 import com.loadot.dto.CharacterInfoDto;
 import com.loadot.dto.response.CharacterInfoResponse;
 import com.loadot.entity.Character;
@@ -24,26 +25,33 @@ public class CharacterService {
     @Transactional
     public CharacterInfoResponse getAndSaveCharacter(String characterName) {
         // 로스트아크 API 호출 (캐릭터 정보 가져오기)
-        CharacterInfoDto dto = lostarkWebClient.get()
+        CharacterInfoDto characterInfodto = lostarkWebClient.get()
                 .uri("/armories/characters/" + characterName + "/profiles")
                 .retrieve()
                 .bodyToMono(CharacterInfoDto.class)
                 .block();
 
-        if (dto == null) {
+        if (characterInfodto == null) {
             throw new RuntimeException("캐릭터 정보를 찾을 수 없습니다.");
         }
 
+        // 로스트아크 API 호출 (캐릭터 아크패시브 가져오기)
+        CharacterArkPassiveDto characterArkPassivedto = lostarkWebClient.get()
+                .uri("/armories/characters/" + characterName + "/arkpassive")
+                .retrieve()
+                .bodyToMono(CharacterArkPassiveDto.class)
+                .block();
+
         // DB에서 기존 캐릭터 확인 (없으면 신규 생성, 있으면 업데이트)
         Character character = characterRepository.findByCharacterName(characterName)
-                .map(existing -> existing.update(dto))
-                .orElseGet(() -> characterRepository.save(new Character(dto)));
+                .map(existing -> existing.update(characterInfodto))
+                .orElseGet(() -> characterRepository.save(new Character(characterInfodto)));
 
         // 캐릭터 히스토리 테이블에 저장
         this.recordCharacterHistory(character);
 
         // Entity -> Response DTO 변환 후 반환
-        return CharacterInfoResponse.from(character, dto);
+        return CharacterInfoResponse.from(character, characterInfodto, characterArkPassivedto);
     }
 
     /**

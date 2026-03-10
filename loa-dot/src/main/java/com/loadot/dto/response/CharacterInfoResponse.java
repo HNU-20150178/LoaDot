@@ -1,5 +1,6 @@
 package com.loadot.dto.response;
 
+import com.loadot.dto.CharacterArkPassiveDto;
 import com.loadot.dto.CharacterInfoDto;
 import com.loadot.entity.Character;
 import lombok.Getter;
@@ -39,19 +40,29 @@ public class CharacterInfoResponse {
     private final String decorationEmblems;
 
     private final List<CharacterInfoDto.StatDto> stats;
-
     private final List<CharacterInfoDto.TendencyDto> tendencies;
-
     private final CharacterInfoDto.DecorationDto decorations;
+
+    // CharacterArkPassiveDto
+    private final String arkPassiveTitle;
+
+    private final boolean isArkPassive;
+
+    private final List<CharacterArkPassiveDto.PointsDto> points;
+    private final List<CharacterArkPassiveDto.EffectsDto> effects;
 
     private final LocalDateTime updatedAt;
 
-    // Entity -> Response DTO 변환 (정적 팩토리 메서드)
-    public static CharacterInfoResponse from(Character character, CharacterInfoDto dto) {
-        return new CharacterInfoResponse(character, dto);
+    // Entity,Dto -> Response DTO 변환 (정적 팩토리 메서드)
+    public static CharacterInfoResponse from(Character character,
+                                             CharacterInfoDto characterInfoDto,
+                                             CharacterArkPassiveDto characterArkPassiveDto) {
+        return new CharacterInfoResponse(character, characterInfoDto, characterArkPassiveDto);
     }
 
-    private CharacterInfoResponse(Character character, CharacterInfoDto dto) {
+    private CharacterInfoResponse(Character character,
+                                  CharacterInfoDto characterInfoDto,
+                                  CharacterArkPassiveDto characterArkPassiveDto) {
         this.id                 = character.getId();
         this.characterName      = character.getCharacterName();
         this.serverName         = character.getServerName();
@@ -74,8 +85,13 @@ public class CharacterInfoResponse {
         this.symbol             = character.getSymbol();
         this.decorationEmblems  = character.getDecorationEmblems();
         this.updatedAt          = character.getUpdatedAt();
-        this.stats              = dto.getStats();
-        this.tendencies         = dto.getTendencies();
-        this.decorations        = dto.getDecorations();
+        this.stats              = characterInfoDto.getStats();
+        this.tendencies         = characterInfoDto.getTendencies();
+        this.decorations        = characterInfoDto.getDecorations();
+        this.arkPassiveTitle    = characterArkPassiveDto.getTitle();
+        this.isArkPassive       = characterArkPassiveDto.getIsArkPassive();
+        this.points             = characterArkPassiveDto.getPoints();
+        this.effects            = characterArkPassiveDto.getEffects();
+
     }
 }

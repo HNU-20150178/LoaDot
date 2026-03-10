@@ -5,12 +5,29 @@
       <div class="detail-column">
 
         <section class="qul-box glass">
-          <h3 class="section-title"> 아크 패시브 </h3>
-          <div v-for="item in characterData.arkGrid" :key="item.name" class="ark-item">
-            <img :src="item.icon" width="18">
-            <span :class="'text-grade' + item.grade">{{ item.name }}</span>
-            <span class="point">{{ item.point }}</span>
+          <h3 class="section-title">아크 패시브</h3>
+          <p class="passive-title">{{ characterData.arkPassiveTitle }}</p>
+
+          <div v-for="point in characterData.points" :key="point.Name" class="ark-group">
+            <div class="group-header">
+              <span class="group-name">{{ point.Name }}</span>
+              <span class="group-value">{{ point.Value }}</span>
+            </div>
+            <div v-for="effect in filterEffects(point.Name)" :key="effect.Name" class="effect-item">
+              <div class="effect-left">
+                <img :src="effect.Icon" width="20" v-if="effect.Icon" class="effect-icon">
+                
+                <span v-if="effect.Tier" class="tier-badge">{{ effect.Tier }}T</span>
+                
+                <span class="effect-name">{{ effect.PureName }}</span>
+              </div>
+
+              <div class="effect-right">
+                <span class="effect-level" v-if="effect.Level">Lv.{{ effect.Level }}</span>
+              </div>
+            </div>
           </div>
+          
         </section>
 
         <section class="qul-box glass">
@@ -40,7 +57,7 @@
           <h3 class="section-title"> 아크 그리드 </h3>
           <div v-for="item in characterData.arkGrid" :key="item.name" class="ark-item">
             <img :src="item.icon" width="18">
-            <span :class="'text-grade' + item.grade">{{ item.name }}</span>
+           <span>{{ item.name }}</span>
             <span class="point">{{ item.point }}</span>
           </div>
         </section>
@@ -64,7 +81,7 @@
           <h3 class="section-title"> 카드 </h3>
           <div class="card-grid">
             <div v-for="card in characterData.cards" :key="card.name" class="card-item">
-              <img :src="card.image" :class="'grade-' + card.grade">
+              <img :src="card.image">
             </div>
           </div>
           <div class="card-set-effect">
@@ -108,6 +125,42 @@ const baseStats = computed(() => {
 // 숫자 포맷팅 함수
 const formatNum = (val) => Number(val).toLocaleString();
 
+const filterEffects = (categoryName) => {
+  const effects = props.characterData?.effects;
+  if (!effects) return [];
+
+  return effects
+    .filter(effect => effect.Description && effect.Description.includes(categoryName))
+    .map(effect => {
+      const desc = effect.Description;
+
+      // HTML 태그 제거 및 텍스트만 추출
+      const cleanText = desc.replace(/<[^>]*>?/gm, '').trim();
+
+      // 티어 정보 추출 (숫자 + 티어)
+      const tierMatch = cleanText.match(/(\d+)티어/);
+      const tier = tierMatch ? tierMatch[1] : '';
+
+      // 레벨 정보 추출 (Lv. + 숫자)
+      const levelMatch = cleanText.match(/Lv\.(\d+)/);
+      const level = levelMatch ? levelMatch[1] : '';
+
+      // 스킬/패시브 이름 정밀 추출
+      let pureName = cleanText
+        .replace(categoryName, '')
+        .replace(`${tier}티어`, '')
+        .replace(`Lv.${level}`, '')
+        .trim();
+
+      return {
+        ...effect,
+        Tier: tier,
+        Level: level,
+        PureName: pureName || effect.Name, // 이름 추출 실패 시 기본 Name 사용
+        FullText: cleanText
+      };
+    });
+};
 </script>
 
 <style scoped>
@@ -156,5 +209,63 @@ const formatNum = (val) => Number(val).toLocaleString();
   border: 0;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   margin: 10px 0;
+}
+
+.ark-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.group-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+}
+
+.group-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #83E9FF;
+  margin-right: 10px;
+}
+
+.effect-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 0;
+  font-size: 0.9rem;
+}
+
+.effect-level {
+  color: #ffd200;
+}
+
+
+
+
+.effect-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tier-badge {
+  background: rgba(255, 255, 255, 0.15);
+  color: #aaa;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.effect-name {
+  font-size: 13px;
+  color: #efefef;
+}
+
+.effect-icon {
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
 }
 </style>
