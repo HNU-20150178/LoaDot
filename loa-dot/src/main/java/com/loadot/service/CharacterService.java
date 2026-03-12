@@ -1,5 +1,6 @@
 package com.loadot.service;
 
+import com.loadot.dto.CharacterArkGridDto;
 import com.loadot.dto.CharacterArkPassiveDto;
 import com.loadot.dto.CharacterInfoDto;
 import com.loadot.dto.response.CharacterInfoResponse;
@@ -42,6 +43,14 @@ public class CharacterService {
                 .bodyToMono(CharacterArkPassiveDto.class)
                 .block();
 
+        // 로스트아크 API 호출 (캐릭터 아크그리드 가져오기)
+        CharacterArkGridDto characterArkGridDto = lostarkWebClient.get()
+                .uri("/armories/characters/" + characterName + "/arkgrid")
+                .retrieve()
+                .bodyToMono(CharacterArkGridDto.class)
+                .block();
+
+
         // DB에서 기존 캐릭터 확인 (없으면 신규 생성, 있으면 업데이트)
         Character character = characterRepository.findByCharacterName(characterName)
                 .map(existing -> existing.update(characterInfodto))
@@ -51,7 +60,7 @@ public class CharacterService {
         this.recordCharacterHistory(character);
 
         // Entity -> Response DTO 변환 후 반환
-        return CharacterInfoResponse.from(character, characterInfodto, characterArkPassivedto);
+        return CharacterInfoResponse.from(character, characterInfodto, characterArkPassivedto, characterArkGridDto);
     }
 
     /**

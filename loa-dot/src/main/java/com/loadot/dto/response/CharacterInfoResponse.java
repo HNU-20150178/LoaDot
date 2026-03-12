@@ -1,5 +1,6 @@
 package com.loadot.dto.response;
 
+import com.loadot.dto.CharacterArkGridDto;
 import com.loadot.dto.CharacterArkPassiveDto;
 import com.loadot.dto.CharacterInfoDto;
 import com.loadot.entity.Character;
@@ -48,21 +49,28 @@ public class CharacterInfoResponse {
 
     private final boolean isArkPassive;
 
-    private final List<CharacterArkPassiveDto.PointsDto> points;
-    private final List<CharacterArkPassiveDto.EffectsDto> effects;
+    private final List<CharacterArkPassiveDto.PointsDto> arkPassivePoints;
+    private final List<CharacterArkPassiveDto.EffectsDto> arkPassiveEffects;
+
+    // CharacterArkGridDto
+    private final List<CharacterArkGridDto.SlotsDto> arkGridSlots;
+
+    private final List<CharacterArkGridDto.EffectsDto> arkGridEffects;
 
     private final LocalDateTime updatedAt;
 
     // Entity,Dto -> Response DTO 변환 (정적 팩토리 메서드)
     public static CharacterInfoResponse from(Character character,
                                              CharacterInfoDto characterInfoDto,
-                                             CharacterArkPassiveDto characterArkPassiveDto) {
-        return new CharacterInfoResponse(character, characterInfoDto, characterArkPassiveDto);
+                                             CharacterArkPassiveDto characterArkPassiveDto,
+                                             CharacterArkGridDto characterArkGridDto) {
+        return new CharacterInfoResponse(character, characterInfoDto, characterArkPassiveDto, characterArkGridDto);
     }
 
     private CharacterInfoResponse(Character character,
                                   CharacterInfoDto characterInfoDto,
-                                  CharacterArkPassiveDto characterArkPassiveDto) {
+                                  CharacterArkPassiveDto characterArkPassiveDto,
+                                  CharacterArkGridDto characterArkGridDto) {
         this.id                 = character.getId();
         this.characterName      = character.getCharacterName();
         this.serverName         = character.getServerName();
@@ -90,8 +98,10 @@ public class CharacterInfoResponse {
         this.decorations        = characterInfoDto.getDecorations();
         this.arkPassiveTitle    = characterArkPassiveDto.getTitle();
         this.isArkPassive       = characterArkPassiveDto.getIsArkPassive();
-        this.points             = characterArkPassiveDto.getPoints();
-        this.effects            = characterArkPassiveDto.getEffects();
+        this.arkPassivePoints   = characterArkPassiveDto.getPoints();
+        this.arkPassiveEffects  = characterArkPassiveDto.getEffects();
+        this.arkGridSlots       = characterArkGridDto.getSlots();
+        this.arkGridEffects     = characterArkGridDto.getEffects();
 
     }
 }

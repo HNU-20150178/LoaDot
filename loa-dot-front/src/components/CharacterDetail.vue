@@ -8,7 +8,7 @@
           <h3 class="section-title">아크 패시브</h3>
           <p class="passive-title">{{ characterData.arkPassiveTitle }}</p>
 
-          <div v-for="point in characterData.points" :key="point.Name" class="ark-group">
+          <div v-for="point in characterData.arkPassivePoints" :key="point.Name" class="ark-group">
             <div class="group-header">
               <span class="group-name">{{ point.Name }}</span>
               <span class="group-value">{{ point.Value }}</span>
@@ -55,7 +55,7 @@
 
         <section class="qul-box glass">
           <h3 class="section-title"> 아크 그리드 </h3>
-          <div v-for="item in characterData.arkGrid" :key="item.name" class="ark-item">
+          <div v-for="item in characterData.arkGridSlots" :key="item.name" class="ark-item">
             <img :src="item.icon" width="18">
            <span>{{ item.name }}</span>
             <span class="point">{{ item.point }}</span>
@@ -126,7 +126,7 @@ const baseStats = computed(() => {
 const formatNum = (val) => Number(val).toLocaleString();
 
 const filterEffects = (categoryName) => {
-  const effects = props.characterData?.effects;
+  const effects = props.characterData?.arkPassiveEffects;
   if (!effects) return [];
 
   return effects
