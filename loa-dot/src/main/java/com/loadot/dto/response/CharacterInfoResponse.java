@@ -40,7 +40,10 @@ public class CharacterInfoResponse {
     private final String symbol;
     private final String decorationEmblems;
 
-    private final List<CharacterInfoDto.StatDto> stats;
+//    private final List<CharacterInfoDto.StatDto> stats;
+    private final List<StatResponse> combatStats; // 치명, 특화 등
+    private final BaseStatResponse baseStats;     // 공격력, 생명력
+
     private final List<CharacterInfoDto.TendencyDto> tendencies;
     private final CharacterInfoDto.DecorationDto decorations;
 
@@ -50,8 +53,37 @@ public class CharacterInfoResponse {
     private final boolean isArkPassive;
 
     private final List<CharacterArkPassiveDto.PointsDto> arkPassivePoints;
-    private final List<CharacterArkPassiveDto.EffectsDto> arkPassiveEffects;
 
+    private final List<ArkPassiveEffectResponse> arkPassiveEffects;
+
+    private final List<ArkGridResponse> arkGridSlots;
+
+
+
+    // --- 가공용 내부 클래스 ---
+    @Getter
+    public static class BaseStats {
+        private String attackPower = "0";
+        private String maxHp = "0";
+        public BaseStats(String ap, String hp) { this.attackPower = ap; this.maxHp = hp; }
+    }
+
+    @Getter
+    public static class ParsedEffect {
+        private final String name;
+        private final List<String> descriptions;
+        public ParsedEffect(String name, List<String> desc) { this.name = name; this.descriptions = desc; }
+    }
+
+    @Getter
+    public static class ParsedGridSlot {
+        private final String name;
+        private final String grade;
+        private final List<String> parsedTooltip;
+        public ParsedGridSlot(String name, String grade, List<String> tooltip) {
+            this.name = name; this.grade = grade; this.parsedTooltip = tooltip;
+        }
+    }
     // CharacterArkGridDto
     private final List<CharacterArkGridDto.SlotsDto> arkGridSlots;
 

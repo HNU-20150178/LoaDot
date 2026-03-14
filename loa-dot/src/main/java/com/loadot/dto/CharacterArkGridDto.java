@@ -27,6 +27,8 @@ public class CharacterArkGridDto {
         private int index;
         @JsonProperty("Icon")
         private String icon;
+        @JsonProperty("Name")
+        private String name;
         @JsonProperty("Point")
         private String point;
         @JsonProperty("Grade")
@@ -34,11 +36,11 @@ public class CharacterArkGridDto {
         @JsonProperty("Tooltip")
         private String tooltip;
         @JsonProperty("Gems")
-        private String gems;
+        private List<GemsDto> gems;
 
         public static class GemsDto {
             @JsonProperty("Index")
-            private int index;
+            private Integer index;
             @JsonProperty("Icon")
             private String icon;
             @JsonProperty("IsActive")
@@ -55,7 +57,7 @@ public class CharacterArkGridDto {
         @JsonProperty("Name")
         private String name;
         @JsonProperty("Level")
-        private String level;
+        private Integer level;
         @JsonProperty("ToolTip")
         private String tooltip;
     }

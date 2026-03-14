@@ -55,10 +55,11 @@
 
         <section class="qul-box glass">
           <h3 class="section-title"> 아크 그리드 </h3>
-          <div v-for="item in characterData.arkGridSlots" :key="item.name" class="ark-item">
-            <img :src="item.icon" width="18">
-           <span>{{ item.name }}</span>
-            <span class="point">{{ item.point }}</span>
+          <div v-for="arkgrid in characterData.arkGridSlots" :key="arkgrid.Name" class="ark-item">
+            <img :src="arkgrid.Icon" width="18">
+           <span>{{ arkgrid.Name }}</span>
+            <span class="point">{{ arkgrid.Grade }}</span>
+            <span class="point">{{ arkgrid.Tooltip }}</span>
           </div>
         </section>
       </div>
