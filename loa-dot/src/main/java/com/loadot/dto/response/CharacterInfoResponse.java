@@ -4,6 +4,7 @@ import com.loadot.dto.CharacterArkGridDto;
 import com.loadot.dto.CharacterArkPassiveDto;
 import com.loadot.dto.CharacterInfoDto;
 import com.loadot.entity.Character;
+import com.loadot.util.DataUtil;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -40,14 +41,13 @@ public class CharacterInfoResponse {
     private final String symbol;
     private final String decorationEmblems;
 
-//    private final List<CharacterInfoDto.StatDto> stats;
-    private final List<StatResponse> combatStats; // 치명, 특화 등
-    private final BaseStatResponse baseStats;     // 공격력, 생명력
-
+    // 기본 스탯
+    private final List<StatResponse> combatStats;
+    private final BaseStatResponse baseStats;
     private final List<CharacterInfoDto.TendencyDto> tendencies;
     private final CharacterInfoDto.DecorationDto decorations;
 
-    // CharacterArkPassiveDto
+    // 아크패시브
     private final String arkPassiveTitle;
 
     private final boolean isArkPassive;
@@ -56,38 +56,62 @@ public class CharacterInfoResponse {
 
     private final List<ArkPassiveEffectResponse> arkPassiveEffects;
 
-    private final List<ArkGridResponse> arkGridSlots;
-
-
+    // 아크그리드 슬롯
+    private final List<ArkGridSlotResponse> arkGridSlots;
+    private final List<CharacterArkGridDto.EffectsDto> arkGridEffects;
 
     // --- 가공용 내부 클래스 ---
     @Getter
-    public static class BaseStats {
-        private String attackPower = "0";
-        private String maxHp = "0";
-        public BaseStats(String ap, String hp) { this.attackPower = ap; this.maxHp = hp; }
+    public static class StatResponse {
+        private final String type;
+        private final String value;
+        public StatResponse(String type, String value) { this.type = type; this.value = value; }
     }
 
     @Getter
-    public static class ParsedEffect {
+    public static class BaseStatResponse {
+        private final String attackPower;
+        private final String maxHp;
+        public BaseStatResponse(String attackPower, String maxHp) { this.attackPower = attackPower; this.maxHp = maxHp; }
+    }
+
+    @Getter
+    public static class ArkPassiveEffectResponse {
         private final String name;
-        private final List<String> descriptions;
-        public ParsedEffect(String name, List<String> desc) { this.name = name; this.descriptions = desc; }
+        private final String icon;
+        private final String title;
+        private final String level;
+        private final String description;
+
+        public ArkPassiveEffectResponse(String name, String icon, String title, String level, String description) {
+            this.name = name;
+            this.icon = icon;
+            this.title = title;
+            this.level = level;
+            this.description = description;
+        }
     }
 
     @Getter
-    public static class ParsedGridSlot {
+    public static class EffectDetail {
+        private final String title;
+        private final String level;
+        private final String description;
+
+        public EffectDetail(String title, String level, String description) {
+            this.title = title; this.level = level; this.description = description;
+        }
+    }
+
+    @Getter
+    public static class ArkGridSlotResponse {
         private final String name;
         private final String grade;
         private final List<String> parsedTooltip;
-        public ParsedGridSlot(String name, String grade, List<String> tooltip) {
+        public ArkGridSlotResponse(String name, String grade, List<String> tooltip) {
             this.name = name; this.grade = grade; this.parsedTooltip = tooltip;
         }
     }
-    // CharacterArkGridDto
-    private final List<CharacterArkGridDto.SlotsDto> arkGridSlots;
-
-    private final List<CharacterArkGridDto.EffectsDto> arkGridEffects;
 
     private final LocalDateTime updatedAt;
 
@@ -125,15 +149,47 @@ public class CharacterInfoResponse {
         this.symbol             = character.getSymbol();
         this.decorationEmblems  = character.getDecorationEmblems();
         this.updatedAt          = character.getUpdatedAt();
-        this.stats              = characterInfoDto.getStats();
-        this.tendencies         = characterInfoDto.getTendencies();
-        this.decorations        = characterInfoDto.getDecorations();
-        this.arkPassiveTitle    = characterArkPassiveDto.getTitle();
-        this.isArkPassive       = characterArkPassiveDto.getIsArkPassive();
-        this.arkPassivePoints   = characterArkPassiveDto.getPoints();
-        this.arkPassiveEffects  = characterArkPassiveDto.getEffects();
-        this.arkGridSlots       = characterArkGridDto.getSlots();
-        this.arkGridEffects     = characterArkGridDto.getEffects();
+
+        // 스탯 필터링 및 가공
+        List<CharacterInfoDto.StatDto> rawStats = characterInfoDto.getStats();
+        List<String> combatTargets = List.of("치명", "특화", "제압", "신속", "인내", "숙련");
+
+        this.combatStats = rawStats.stream()
+                .filter(s -> combatTargets.contains(s.getType()))
+                .map(s -> new StatResponse(s.getType(), s.getValue()))
+                .toList();
+
+        String ap = rawStats.stream().filter(s -> "공격력".equals(s.getType())).findFirst().map(CharacterInfoDto.StatDto::getValue).orElse("0");
+        String hp = rawStats.stream().filter(s -> "최대 생명력".equals(s.getType())).findFirst().map(CharacterInfoDto.StatDto::getValue).orElse("0");
+        this.baseStats = new BaseStatResponse(ap, hp);
+
+        this.tendencies = characterInfoDto.getTendencies();
+        this.decorations = characterInfoDto.getDecorations();
+
+        // 아크 패시브 가공 (툴팁 파싱 로직 호출)
+        this.arkPassiveTitle = characterArkPassiveDto.getTitle();
+        this.isArkPassive = characterArkPassiveDto.getIsArkPassive();
+        this.arkPassivePoints = characterArkPassiveDto.getPoints();
+        this.arkPassiveEffects = characterArkPassiveDto.getEffects().stream()
+                .map(e -> {
+                    // 1. 일단 툴팁을 파싱해서 리스트를 가져옵니다.
+                    List<EffectDetail> details = DataUtil.parseTooltipForArkPassive(e.getTooltip());
+
+                    // 2. 리스트가 비어있지 않다면 첫 번째 요소를 꺼내고, 비어있으면 빈 값을 줍니다.
+                    String title = details.isEmpty() ? "" : details.get(0).getTitle();
+                    String level = details.isEmpty() ? "" : details.get(0).getLevel();
+                    String desc  = details.isEmpty() ? "" : details.get(0).getDescription();
+
+                    // 3. 평면화된 DTO로 생성
+                    return new ArkPassiveEffectResponse(e.getName(), e.getIcon(), title, level, desc);
+                })
+                .toList();
+
+        // 4. 아크 그리드 가공 (툴팁 파싱 로직 호출)
+        this.arkGridSlots = characterArkGridDto.getSlots().stream()
+                .map(s -> new ArkGridSlotResponse(s.getName(), s.getGrade(), DataUtil.parseTooltip(s.getTooltip())))
+                .toList();
+        this.arkGridEffects = characterArkGridDto.getEffects();
 
     }
 }

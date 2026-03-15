@@ -1,6 +1,15 @@
 package com.loadot.util;
 
+import com.loadot.dto.response.CharacterInfoResponse;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class DataUtil {
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * "1,620.00" -> 1620.00 (Double 변환)
@@ -15,4 +24,92 @@ public class DataUtil {
         }
     }
 
+    /**
+     * API 툴팁의 JSON을 문자열 리스트로 변환
+     */
+    public static List<String> parseTooltip(String tooltipJson) {
+        if (tooltipJson == null || tooltipJson.isBlank()) return List.of();
+
+        List<String> result = new ArrayList<>();
+        try {
+            JsonNode root = objectMapper.readTree(tooltipJson);
+
+            // root가 객체라면 내부 필드들을 순회합니다.
+            root.forEach(node -> {
+                // node는 { "type": ..., "value": ... } 객체입니다.
+                String type = node.path("type").asString();
+                JsonNode valueNode = node.path("value");
+
+                if (valueNode.isString()) {
+                    String cleaned = cleanHtml(valueNode.asString());
+                    if (!cleaned.isEmpty()) result.add(cleaned);
+                }
+                else if ("ItemPartBox".equals(type) && valueNode.isObject()) {
+                    // Element_000이 제목, Element_001이 내용임
+                    String title = cleanHtml(valueNode.path("Element_000").asString());
+                    String content = cleanHtml(valueNode.path("Element_001").asString());
+
+                    if (!content.isEmpty()) {
+                        // 제목이 있으면 "제목: 내용", 없으면 "내용"만 추가
+                        result.add(title.isEmpty() ? content : title + ": " + content);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            // 에러 처리
+        }
+        return result;
+    }
+
+    /**
+     *
+     * @param tooltipJson
+     * @return
+     */
+    public static List<CharacterInfoResponse.EffectDetail> parseTooltipForArkPassive(String tooltipJson) {
+        if (tooltipJson == null || tooltipJson.isBlank()) return List.of();
+
+        List<CharacterInfoResponse.EffectDetail> result = new ArrayList<>();
+        try {
+            JsonNode root = objectMapper.readTree(tooltipJson);
+
+            // 1. Element_000: 스킬 이름 (NameTagBox)
+            String title = cleanHtml(root.path("Element_000").path("value").asString());
+
+            // 2. Element_001: 레벨 정보 (CommonSkillTitle)
+            // value -> leftText 에 "아크 패시브 레벨 <FONT...>3</FONT>" 형태로 들어있음
+            String rawLevel = root.path("Element_001").path("value").path("leftText").asString();
+            String level = cleanHtml(rawLevel).replace("아크 패시브 레벨", "Lv.").trim();
+
+            // 3. Element_002: 상세 설명 (MultiTextBox)
+            String description = cleanHtml(root.path("Element_002").path("value").asString());
+
+            // 만약 Element_000이 비어있다면 (예비책)
+            if (title.isEmpty() && !description.isEmpty()) {
+                title = description; // 이전처럼 스왑
+                description = "";
+            }
+
+            if (!title.isEmpty()) {
+                result.add(new CharacterInfoResponse.EffectDetail(title, level, description));
+            }
+        } catch (Exception e) {
+            // 파싱 에러 로그
+        }
+        return result;
+    }
+
+    /**
+     * HTML 태그 제거 및 특수문자 제외
+     */
+    public static String cleanHtml(String text) {
+        if (text == null) return "";
+        return text.replaceAll("<br>", "\n")                              // 줄바꿈 보존
+                .replaceAll("<BR>"   , "\n")
+                .replaceAll("<[^>]*>", "")                               // 나머지 모든 태그 제거
+                .replaceAll("&nbsp;" , " ")                              // 공백 치환
+                .replaceAll("\\s+"   , " ")                              // 연속 공백 정리
+                .replace("||"        , "")                               // 툴팁 끝에 붙는 구분 기호 제거
+                .trim();
+    }
 }
