@@ -62,9 +62,9 @@ public class DataUtil {
     }
 
     /**
-     *
-     * @param tooltipJson
-     * @return
+     * 아크패시브툴팁변환
+     * @param tooltipJson JSON
+     * @return EffectDetail
      */
     public static List<CharacterInfoResponse.EffectDetail> parseTooltipForArkPassive(String tooltipJson) {
         if (tooltipJson == null || tooltipJson.isBlank()) return List.of();
