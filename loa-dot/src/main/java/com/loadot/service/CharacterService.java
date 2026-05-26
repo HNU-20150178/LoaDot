@@ -23,6 +23,10 @@ public class CharacterService {
     private final CharacterRepository characterRepository;
     private final CharacterHistoryRepository characterHistoryRepository;
 
+    /**
+     * 캐릭터 히스토리 가져오기
+     * @param characterName 검색할 캐릭터 닉네임
+     */
     @Transactional
     public CharacterInfoResponse getAndSaveCharacter(String characterName) {
         // 로스트아크 API 호출 (캐릭터 정보 가져오기)
