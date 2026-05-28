@@ -60,7 +60,6 @@ public class CharacterInfoResponse {
     private final List<ArkGridSlotResponse> arkGridSlots;
     private final List<CharacterArkGridDto.EffectsDto> arkGridEffects;
 
-    // --- 가공용 내부 클래스 ---
     @Getter
     public static class StatResponse {
         private final String type;
