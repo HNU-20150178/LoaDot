@@ -95,12 +95,6 @@ const handleReset = () => {
         <span class="guild-icon">길드:</span>
         {{ characterData.guildName }}
       </span>
-      <button class="reset-btn" @click="handleReset" title="다시 검색">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-          <path d="M3 3v5h5"/>
-        </svg>
-      </button>
     </div>
   </div>
 </template>
@@ -110,6 +104,7 @@ const handleReset = () => {
 
 .caracterCardWrap {
   position: relative;
+  margin-top: 24px;
   width: 320px;
   background: linear-gradient(160deg, #141820 0%, #0d1117 60%, #111620 100%);
   border: 1px solid rgba(180, 140, 60, 0.3);
@@ -344,24 +339,4 @@ const handleReset = () => {
   font-size: 0.75rem;
 }
 
-.reset-btn {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: #666;
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-.reset-btn:hover {
-  background: rgba(180, 140, 60, 0.15);
-  border-color: rgba(180, 140, 60, 0.4);
-  color: #c9a84c;
-  transform: rotate(180deg);
-}
 </style>
