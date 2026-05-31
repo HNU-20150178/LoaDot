@@ -1,5 +1,6 @@
 package com.loadot.util;
 
+import com.loadot.dto.CharacterEngravingsDto;
 import com.loadot.dto.response.CharacterInfoResponse;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -97,6 +98,36 @@ public class DataUtil {
             // 파싱 에러 로그
         }
         return result;
+    }
+
+    /**
+     * 각인 아크 패시브 효과 리스트의 Description에서 HTML 태그를 제거하여 정돈된 리스트로 반환
+     * @param rawEffects API에서 받아온 원본 ArkPassiveEffect 리스트
+     * @return HTML 태그가 제거된 ArkPassiveEffect 리스트 (Null-safe)
+     */
+    public static List<CharacterEngravingsDto.ArkPassiveEffect> parseTooltipForEngravings(List<CharacterEngravingsDto.ArkPassiveEffect> rawEffects) {
+        if (rawEffects == null || rawEffects.isEmpty()) {
+            return List.of(); // 빈 리스트 리턴으로 NullPointerException 방지
+        }
+
+        List<CharacterEngravingsDto.ArkPassiveEffect> processedList = new ArrayList<>();
+
+        for (CharacterEngravingsDto.ArkPassiveEffect effect : rawEffects) {
+            CharacterEngravingsDto.ArkPassiveEffect cleanEffect = new CharacterEngravingsDto.ArkPassiveEffect();
+
+            cleanEffect.setAbilityStoneLevel(effect.getAbilityStoneLevel());
+            cleanEffect.setGrade(effect.getGrade());
+            cleanEffect.setLevel(effect.getLevel());
+            cleanEffect.setName(effect.getName());
+
+            // Description에서 HTML 태그만 지우기
+            String rawDesc = effect.getDescription();
+            cleanEffect.setDescription(rawDesc != null ? cleanHtml(rawDesc) : "");
+
+            processedList.add(cleanEffect);
+        }
+
+        return processedList;
     }
 
     /**

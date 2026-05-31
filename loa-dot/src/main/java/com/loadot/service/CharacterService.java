@@ -2,6 +2,7 @@ package com.loadot.service;
 
 import com.loadot.dto.CharacterArkGridDto;
 import com.loadot.dto.CharacterArkPassiveDto;
+import com.loadot.dto.CharacterEngravingsDto;
 import com.loadot.dto.CharacterInfoDto;
 import com.loadot.dto.response.CharacterInfoResponse;
 import com.loadot.entity.Character;
@@ -54,6 +55,11 @@ public class CharacterService {
                 .bodyToMono(CharacterArkGridDto.class)
                 .block();
 
+        CharacterEngravingsDto characterEngravingsDto = lostarkWebClient.get()
+                .uri("/armories/characters/" + characterName + "engravings")
+                .retrieve()
+                .bodyToMono(CharacterEngravingsDto.class)
+                .block();
 
         // DB에서 기존 캐릭터 확인 (없으면 신규 생성, 있으면 업데이트)
         Character character = characterRepository.findByCharacterName(characterName)
@@ -64,7 +70,7 @@ public class CharacterService {
         this.recordCharacterHistory(character);
 
         // Entity -> Response DTO 변환 후 반환
-        return CharacterInfoResponse.from(character, characterInfodto, characterArkPassivedto, characterArkGridDto);
+        return CharacterInfoResponse.from(character, characterInfodto, characterArkPassivedto, characterArkGridDto, characterEngravingsDto);
     }
 
     /**

@@ -2,6 +2,7 @@ package com.loadot.dto.response;
 
 import com.loadot.dto.CharacterArkGridDto;
 import com.loadot.dto.CharacterArkPassiveDto;
+import com.loadot.dto.CharacterEngravingsDto;
 import com.loadot.dto.CharacterInfoDto;
 import com.loadot.entity.Character;
 import com.loadot.util.DataUtil;
@@ -59,6 +60,9 @@ public class CharacterInfoResponse {
     // 아크그리드 슬롯
     private final List<ArkGridSlotResponse> arkGridSlots;
     private final List<CharacterArkGridDto.EffectsDto> arkGridEffects;
+
+    // 각인
+    private final List<CharacterEngravingsDto.ArkPassiveEffect> engravingsArkPassiveEffects;
 
     @Getter
     public static class StatResponse {
@@ -118,14 +122,16 @@ public class CharacterInfoResponse {
     public static CharacterInfoResponse from(Character character,
                                              CharacterInfoDto characterInfoDto,
                                              CharacterArkPassiveDto characterArkPassiveDto,
-                                             CharacterArkGridDto characterArkGridDto) {
-        return new CharacterInfoResponse(character, characterInfoDto, characterArkPassiveDto, characterArkGridDto);
+                                             CharacterArkGridDto characterArkGridDto,
+                                             CharacterEngravingsDto characterEngravingsDto) {
+        return new CharacterInfoResponse(character, characterInfoDto, characterArkPassiveDto, characterArkGridDto, characterEngravingsDto);
     }
 
     private CharacterInfoResponse(Character character,
                                   CharacterInfoDto characterInfoDto,
                                   CharacterArkPassiveDto characterArkPassiveDto,
-                                  CharacterArkGridDto characterArkGridDto) {
+                                  CharacterArkGridDto characterArkGridDto,
+                                  CharacterEngravingsDto characterEngravingsDto) {
         this.id                 = character.getId();
         this.characterName      = character.getCharacterName();
         this.serverName         = character.getServerName();
@@ -190,5 +196,7 @@ public class CharacterInfoResponse {
                 .toList();
         this.arkGridEffects = characterArkGridDto.getEffects();
 
+        // 5.각인 가공
+        this.engravingsArkPassiveEffects = DataUtil.parseTooltipForEngravings(characterEngravingsDto.getArkPassiveEffects());
     }
 }
