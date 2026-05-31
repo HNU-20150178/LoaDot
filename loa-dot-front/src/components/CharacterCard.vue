@@ -29,7 +29,7 @@ const handleReset = () => {
     <!-- 캐릭터 이미지 영역 -->
     <div class="image-section">
       <div class="image-wrapper">
-        <img
+        <img v-if="characterData.characterImage"
           :src="characterData.characterImage"
           :alt="characterData.characterName"
           class="character-image"

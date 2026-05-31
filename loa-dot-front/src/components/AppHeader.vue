@@ -15,6 +15,15 @@
 </template>
 
 <style scoped>
+.logo-link, 
+.logo-link:visited, 
+.logo-link:active, 
+.logo-link:focus {
+  color: #ffffff;
+  text-decoration: none;
+  outline: none;
+}
+
 header {
   margin-bottom: 2rem;
 }
