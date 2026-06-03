@@ -56,7 +56,7 @@ public class CharacterService {
                 .block();
 
         CharacterEngravingsDto characterEngravingsDto = lostarkWebClient.get()
-                .uri("/armories/characters/" + characterName + "engravings")
+                .uri("/armories/characters/" + characterName + "/engravings")
                 .retrieve()
                 .bodyToMono(CharacterEngravingsDto.class)
                 .block();

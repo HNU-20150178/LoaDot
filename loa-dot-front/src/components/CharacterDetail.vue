@@ -3,7 +3,6 @@
     <div class="detail-grid">
 
       <div class="detail-column">
-
         <section class="qul-box glass">
           <h3 class="section-title">아크 패시브</h3>
           <p class="passive-title">{{ characterData.arkPassiveTitle }}</p>
@@ -90,13 +89,22 @@
       <div class="detail-column">
         <section class="qul-box glass">
           <h3 class="section-title">각인</h3>
-          <div v-for="engrave in characterData.engravings" :key="engrave.name" class="engrave-item">
-            <div class="engrave-info">
-              <span class="elics-tag">4</span>
-              <span>{{ engrave.name }}</span>
+          
+          <div v-if="characterData?.engravingsArkPassiveEffects && characterData.engravingsArkPassiveEffects.length > 0">
+            <div 
+              v-for="(engrave, index) in characterData.engravingsArkPassiveEffects" 
+              :key="index" 
+              :class="['engrave-passive-item', getGradeClass(engrave.Grade)]"
+            >
+              <div class="engrave-info">
+                <span class="engrave-name">{{ engrave.Name }}</span>
+                <span class="engrave-grade-badge">{{ engrave.Grade }} Lv.{{ engrave.Level }}</span>
+                <span class="stone-level" v-if="engrave.AbilityStoneLevel">스톤 Lv.{{ engrave.AbilityStoneLevel }}</span>
+              </div>
+              <p class="engrave-passive-desc">{{ engrave.Description }}</p>
             </div>
-            <span class="engrave-lv" v-if="engrave.level">Lv.{{ engrave.level }}</span>
           </div>
+          <div v-else class="no-data">활성화된 아크 패시브 각인이 없습니다.</div>
         </section>
       </div>
 
@@ -142,6 +150,13 @@ const getCategoryClass = (name) => {
   if (name?.includes('도약')) return 'leap'
   return ''
 }
+
+const getGradeClass = (grade) => {
+  if (!grade) return 'normal';
+  if (grade === '유물') return 'relic';
+  if (grade === '고대') return 'ancient';
+  return 'normal';
+};
 
 const filterEffects = (categoryName) => {
   const effects = props.characterData?.arkPassiveEffects
@@ -331,7 +346,7 @@ const filterEffects = (categoryName) => {
   margin-bottom: 2px;
 }
 
-.effect-name {
+.effect-title {
   font-size: 12px;
   font-weight: 600;
   color: #ddd;
@@ -410,4 +425,49 @@ const filterEffects = (categoryName) => {
   line-height: 1.5;
   margin: 0;
 }
+
+.engrave-passive-item {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.engrave-passive-item.relic { border-left: 3px solid #ea6000; }
+.engrave-passive-item.ancient { border-left: 3px solid #ccaa00; }
+
+.engrave-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.engrave-name {
+  font-size: 13px;
+  font-weight: bold;
+  color: #fff;
+}
+.engrave-grade-badge {
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.1);
+  color: #aaa;
+}
+.relic .engrave-grade-badge { color: #ff9933; background: rgba(234, 96, 0, 0.15); }
+.ancient .engrave-grade-badge { color: #ffcc00; background: rgba(204, 170, 0, 0.15); }
+
+.stone-level {
+  font-size: 10px;
+  color: #00ccff;
+  margin-left: auto;
+}
+.engrave-passive-desc {
+  font-size: 11px;
+  line-height: 1.4;
+  color: #b0b8c4;
+  margin: 0;
+  white-space: pre-wrap;
+}
+.no-data { text-align: center; color: #666; font-size: 12px; padding: 20px 0; }
 </style>
