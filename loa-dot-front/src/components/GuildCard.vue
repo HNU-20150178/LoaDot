@@ -1,7 +1,6 @@
 <script setup>
 import { defineProps, defineEmits } from 'vue'
 
-// Props 정의
 const props = defineProps({
   characterData: {
     type: Object,
