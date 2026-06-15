@@ -12,7 +12,7 @@ const routes = [
     path: '/search/:characterName',
     name: 'search-result',
     component: SearchResultView,
-    props: true // URL 파라미터를 props로 매핑
+    props: true
   }
 ]
 
