@@ -12,10 +12,6 @@ public class DataUtil {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    /**
-     * "1,620.00" -> 1620.00 (Double 변환)
-     * 아이템 레벨, 전투력 변환용
-     */
     public static Double parseStringToDouble(String levelStr) {
         if (levelStr == null || levelStr.isEmpty()) return 0.0;
         try {
@@ -25,9 +21,6 @@ public class DataUtil {
         }
     }
 
-    /**
-     * API 툴팁의 JSON을 문자열 리스트로 변환
-     */
     public static List<String> parseTooltip(String tooltipJson) {
         if (tooltipJson == null || tooltipJson.isBlank()) return List.of();
 
@@ -35,24 +28,24 @@ public class DataUtil {
         try {
             JsonNode root = objectMapper.readTree(tooltipJson);
 
-            // root가 객체라면 내부 필드들을 순회합니다.
             root.forEach(node -> {
-                // node는 { "type": ..., "value": ... } 객체입니다.
                 String type = node.path("type").asString();
                 JsonNode valueNode = node.path("value");
 
                 if (valueNode.isString()) {
                     String cleaned = cleanHtml(valueNode.asString());
+                    // 코어 옵션 전용 정제 적용
+                    cleaned = cleanArkCoreOption(cleaned);
                     if (!cleaned.isEmpty()) result.add(cleaned);
                 }
                 else if ("ItemPartBox".equals(type) && valueNode.isObject()) {
-                    // Element_000이 제목, Element_001이 내용임
                     String title = cleanHtml(valueNode.path("Element_000").asString());
                     String content = cleanHtml(valueNode.path("Element_001").asString());
 
                     if (!content.isEmpty()) {
-                        // 제목이 있으면 "제목: 내용", 없으면 "내용"만 추가
-                        result.add(title.isEmpty() ? content : title + ": " + content);
+                        String combined = title.isEmpty() ? content : title + ": " + content;
+                        combined = cleanArkCoreOption(combined);
+                        if (!combined.isEmpty()) result.add(combined);
                     }
                 }
             });
@@ -62,11 +55,6 @@ public class DataUtil {
         return result;
     }
 
-    /**
-     * 아크패시브툴팁변환
-     * @param tooltipJson JSON
-     * @return EffectDetail
-     */
     public static List<CharacterInfoResponse.EffectDetail> parseTooltipForArkPassive(String tooltipJson) {
         if (tooltipJson == null || tooltipJson.isBlank()) return List.of();
 
@@ -74,20 +62,17 @@ public class DataUtil {
         try {
             JsonNode root = objectMapper.readTree(tooltipJson);
 
-            // 1. Element_000: 스킬 이름 (NameTagBox)
             String title = cleanHtml(root.path("Element_000").path("value").asString());
 
-            // 2. Element_001: 레벨 정보 (CommonSkillTitle)
-            // value -> leftText 에 "아크 패시브 레벨 <FONT...>3</FONT>" 형태로 들어있음
             String rawLevel = root.path("Element_001").path("value").path("leftText").asString();
             String level = cleanHtml(rawLevel).replace("아크 패시브 레벨", "Lv.").trim();
 
-            // 3. Element_002: 상세 설명 (MultiTextBox)
             String description = cleanHtml(root.path("Element_002").path("value").asString());
+            // 코어 데이터 전용 정제 적용
+            description = cleanArkCoreOption(description);
 
-            // 만약 Element_000이 비어있다면 (예비책)
             if (title.isEmpty() && !description.isEmpty()) {
-                title = description; // 이전처럼 스왑
+                title = description;
                 description = "";
             }
 
@@ -95,19 +80,14 @@ public class DataUtil {
                 result.add(new CharacterInfoResponse.EffectDetail(title, level, description));
             }
         } catch (Exception e) {
-            // 파싱 에러 로그
+            // 에러 처리
         }
         return result;
     }
 
-    /**
-     * 각인 아크 패시브 효과 리스트의 Description에서 HTML 태그를 제거하여 정돈된 리스트로 반환
-     * @param rawEffects API에서 받아온 원본 ArkPassiveEffect 리스트
-     * @return HTML 태그가 제거된 ArkPassiveEffect 리스트 (Null-safe)
-     */
     public static List<CharacterEngravingsDto.ArkPassiveEffect> parseTooltipForEngravings(List<CharacterEngravingsDto.ArkPassiveEffect> rawEffects) {
         if (rawEffects == null || rawEffects.isEmpty()) {
-            return List.of(); // 빈 리스트 리턴으로 NullPointerException 방지
+            return List.of();
         }
 
         List<CharacterEngravingsDto.ArkPassiveEffect> processedList = new ArrayList<>();
@@ -120,9 +100,9 @@ public class DataUtil {
             cleanEffect.setLevel(effect.getLevel());
             cleanEffect.setName(effect.getName());
 
-            // Description에서 HTML 태그만 지우기
             String rawDesc = effect.getDescription();
-            cleanEffect.setDescription(rawDesc != null ? cleanHtml(rawDesc) : "");
+            // 코어 데이터 전용 정제 적용
+            cleanEffect.setDescription(rawDesc != null ? cleanArkCoreOption(cleanHtml(rawDesc)) : "");
 
             processedList.add(cleanEffect);
         }
@@ -131,16 +111,51 @@ public class DataUtil {
     }
 
     /**
-     * HTML 태그 제거 및 특수문자 제외
+     * 기본 HTML 태그 및 기본적인 특수문자 제거
      */
     public static String cleanHtml(String text) {
         if (text == null) return "";
-        return text.replaceAll("<br>", "\n")                              // 줄바꿈 보존
-                .replaceAll("<BR>"   , "\n")
-                .replaceAll("<[^>]*>", "")                               // 나머지 모든 태그 제거
-                .replaceAll("&nbsp;" , " ")                              // 공백 치환
-                .replaceAll("\\s+"   , " ")                              // 연속 공백 정리
-                .replace("||"        , "")                               // 툴팁 끝에 붙는 구분 기호 제거
+        return text.replaceAll("(?i)<br\\s*/?>", "\n")              // <br>, <BR>, <br /> 모두 \n으로 통일
+                .replaceAll("<[^>]*>", "")                          // 나머지 모든 HTML 태그 제거
+                .replaceAll("&nbsp;" , " ")                         // 공백 치환
+                .replaceAll("[\\t\\x0B\\f\\r]", "")                 // \n을 제외한 다른 화이트스페이스 제거
+                .replaceAll("[ ]+", " ")                            // 연속된 일반 공백만 하나로 압축 (\n 유지)
+                .replace("||"        , "")                          // 구분 기호 제거
                 .trim();
+    }
+
+    /**
+     * 아크 패시브 코어 툴팁
+     */
+    private static String cleanArkCoreOption(String text) {
+        if (text == null || text.isBlank()) return "";
+
+        // 1. 불필요한 단어 및 명칭 선제거
+        text = text.replaceAll("(?m)^.*전용$\\n?", "");
+        text = text.replaceAll("(?m)^\\|?거래\\s?불가$\\n?", "");
+        text = text.replaceAll("(?m)^코어\\s?타입.*$\\n?", "");
+        text = text.replaceAll("(?m)^코어\\s?공급.*$\\n?", "");
+        text = text.replaceAll("코어\\s?옵션\\s?:\\s?", "");
+        text = text.replaceAll("코어\\s?옵션\\s?발동\\s?조건\\s?:\\s?", "");
+
+        // 2. 모든 "[숫자P]" 패턴 앞에 줄바꿈(\n) 삽입
+        text = text.replaceAll("\\[(\\d+P)\\]", "\n[$1]");
+
+        // 3. 줄바꿈 기준 분기 처리
+        String[] lines = text.split("\n");
+        StringBuilder sb = new StringBuilder();
+
+        for (String line : lines) {
+            String trimmedLine = line.trim();
+            if (trimmedLine.isEmpty()) continue;
+
+            // 💡 [추가] 만약 줄 내용이 제목인 "질서의 해 코어 : 다크 파워"를 포함하고 있다면 중복이므로 제거
+            if (trimmedLine.contains("코어 :")) continue;
+            if (trimmedLine.contains("활성화 필요") || trimmedLine.contains("활성화가 필요")) continue;
+
+            sb.append(trimmedLine.replace("|", "")).append("\n");
+        }
+
+        return sb.toString().trim();
     }
 }

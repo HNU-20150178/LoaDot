@@ -71,11 +71,24 @@
         <!-- 아크 그리드 -->
         <section class="qul-box glass">
           <h3 class="section-title">아크 그리드</h3>
-          <div v-for="arkgrid in characterData.arkGridSlots" :key="arkgrid.name" class="ark-item">
+          <div 
+            v-for="arkgrid in characterData.arkGridSlots" 
+            :key="arkgrid.name" 
+            class="ark-item"
+            :style="{ 'border-left': `3px solid ${getGradeColor(arkgrid.grade)}` }"
+          >
             <div class="ark-header">
               <img :src="arkgrid.icon" width="18">
               <span class="ark-name">{{ arkgrid.name }}</span>
-              <span class="ark-grade">{{ arkgrid.grade }}</span>
+              <span 
+                class="ark-grade"
+                :style="{ 
+                  color: getGradeColor(arkgrid.grade), 
+                  backgroundColor: `${getGradeColor(arkgrid.grade)}24`
+                }"
+              >
+                {{ arkgrid.grade }}
+              </span>
             </div>
             <div class="ark-tooltip-box">
               <p v-for="(line, idx) in arkgrid.parsedTooltip" :key="idx" class="tooltip-line">
@@ -94,7 +107,8 @@
             <div 
               v-for="(engrave, index) in characterData.engravingsArkPassiveEffects" 
               :key="index" 
-              :class="['engrave-passive-item', getGradeClass(engrave.Grade)]"
+              class="engrave-passive-item"
+              :style="{ 'border-left': `3px solid ${getGradeColor(engrave.Grade)}` }"
             >
               <div class="engrave-info">
                 <span class="engrave-name">{{ engrave.Name }}</span>
@@ -131,6 +145,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { getGradeColor } from '@/utils/gameData'
 
 const props = defineProps({
   characterData: {
@@ -150,13 +165,6 @@ const getCategoryClass = (name) => {
   if (name?.includes('도약')) return 'leap'
   return ''
 }
-
-const getGradeClass = (grade) => {
-  if (!grade) return 'normal';
-  if (grade === '유물') return 'relic';
-  if (grade === '고대') return 'ancient';
-  return 'normal';
-};
 
 const filterEffects = (categoryName) => {
   const effects = props.characterData?.arkPassiveEffects
@@ -421,8 +429,8 @@ const filterEffects = (categoryName) => {
 
 .tooltip-line {
   font-size: 11px;
-  color: #999;
-  line-height: 1.5;
+  color: #cbd5e1;
+  line-height: 1.6;
   margin: 0;
 }
 
@@ -433,8 +441,6 @@ const filterEffects = (categoryName) => {
   padding: 10px;
   margin-bottom: 10px;
 }
-.engrave-passive-item.relic { border-left: 3px solid #ea6000; }
-.engrave-passive-item.ancient { border-left: 3px solid #ccaa00; }
 
 .engrave-info {
   display: flex;
