@@ -55,6 +55,7 @@ public class CharacterService {
                 .bodyToMono(CharacterArkGridDto.class)
                 .block();
 
+        // 로스트아크 API 호출 (캐릭터 각인 가져오기)
         CharacterEngravingsDto characterEngravingsDto = lostarkWebClient.get()
                 .uri("/armories/characters/" + characterName + "/engravings")
                 .retrieve()
