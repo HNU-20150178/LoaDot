@@ -3,6 +3,7 @@ export const GRADE_COLORS = {
   '고급': '#51ffffff',
   '희귀': '#11b5ffff',
   '영웅': '#ce43ffff',
+  '전설': '#ff9900',
   '유물': '#ea6000',
   '고대': '#b380ff',
   '에스더': '#4afbe6'

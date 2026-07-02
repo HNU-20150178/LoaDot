@@ -1,5 +1,6 @@
 package com.loadot.util;
 
+import com.loadot.dto.CharacterCardsDto;
 import com.loadot.dto.CharacterEngravingsDto;
 import com.loadot.dto.response.CharacterInfoResponse;
 import tools.jackson.databind.JsonNode;
@@ -85,6 +86,11 @@ public class DataUtil {
         return result;
     }
 
+    /**
+     * 각인 툴팁 가공
+     * @param rawEffects
+     * @return List<CharacterEngravingsDto.ArkPassiveEffect>
+     */
     public static List<CharacterEngravingsDto.ArkPassiveEffect> parseTooltipForEngravings(List<CharacterEngravingsDto.ArkPassiveEffect> rawEffects) {
         if (rawEffects == null || rawEffects.isEmpty()) {
             return List.of();
@@ -157,5 +163,41 @@ public class DataUtil {
         }
 
         return sb.toString().trim();
+    }
+
+    /**
+     * 카드 세트 이름 추출
+     */
+    public static String parseCardSetName(CharacterCardsDto characterCardsDto) {
+        if (characterCardsDto == null) return "적용된 카드 세트 없음";
+
+        List<CharacterCardsDto.EffectsDto> rawEffects = characterCardsDto.getEffects();
+        if (rawEffects != null && !rawEffects.isEmpty() && rawEffects.get(0).getItems() != null && !rawEffects.get(0).getItems().isEmpty()) {
+            List<CharacterCardsDto.EffectItemDto> items = rawEffects.get(0).getItems();
+
+            // 가장 마지막(가장 높은 단계) 활성화 옵션 이름에서 세트 명칭 추출
+            String lastEffectName = items.get(items.size() - 1).getName();
+            return lastEffectName.split(" \\d+세트")[0].trim();
+        }
+        return "적용된 카드 세트 없음";
+    }
+
+    /**
+     * 💡 카드 세트 효과 리스트 결합 및 가공
+     * 예: "세상을 구하는 빛 2세트 : 암속성 피해 감소 +10.00%"
+     */
+    public static List<String> parseCardSetEffects(CharacterCardsDto characterCardsDto) {
+        if (characterCardsDto == null) return List.of();
+
+        List<CharacterCardsDto.EffectsDto> rawEffects = characterCardsDto.getEffects();
+        if (rawEffects != null && !rawEffects.isEmpty() && rawEffects.get(0).getItems() != null && !rawEffects.get(0).getItems().isEmpty()) {
+            List<CharacterCardsDto.EffectItemDto> items = rawEffects.get(0).getItems();
+
+            // Name과 Description을 결합하여 가공 문자열 리스트 생성
+            return items.stream()
+                    .map(item -> item.getName() + " : " + item.getDescription())
+                    .toList();
+        }
+        return List.of();
     }
 }

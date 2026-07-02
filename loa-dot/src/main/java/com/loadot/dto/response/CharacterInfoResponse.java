@@ -1,9 +1,6 @@
 package com.loadot.dto.response;
 
-import com.loadot.dto.CharacterArkGridDto;
-import com.loadot.dto.CharacterArkPassiveDto;
-import com.loadot.dto.CharacterEngravingsDto;
-import com.loadot.dto.CharacterInfoDto;
+import com.loadot.dto.*;
 import com.loadot.entity.Character;
 import com.loadot.util.DataUtil;
 import lombok.Getter;
@@ -64,6 +61,11 @@ public class CharacterInfoResponse {
     // 각인
     private final List<CharacterEngravingsDto.ArkPassiveEffect> engravingsArkPassiveEffects;
 
+    // 카드
+    private final List<CardResponse> cards;
+    private final String cardSetName;
+    private final List<String> cardSetEffects;
+
     @Getter
     public static class StatResponse {
         private final String type;
@@ -116,6 +118,20 @@ public class CharacterInfoResponse {
         }
     }
 
+    @Getter
+    public static class CardResponse {
+        private final String name;
+        private final String image;
+        private final String grade;
+        private final int awakeCount;
+        public CardResponse(String name, String image, String grade, int awakeCount) {
+            this.name = name;
+            this.image = image;
+            this.grade = grade;
+            this.awakeCount = awakeCount;
+        }
+    }
+
     private final LocalDateTime updatedAt;
 
     // Entity,Dto -> Response DTO 변환 (정적 팩토리 메서드)
@@ -123,15 +139,17 @@ public class CharacterInfoResponse {
                                              CharacterInfoDto characterInfoDto,
                                              CharacterArkPassiveDto characterArkPassiveDto,
                                              CharacterArkGridDto characterArkGridDto,
-                                             CharacterEngravingsDto characterEngravingsDto) {
-        return new CharacterInfoResponse(character, characterInfoDto, characterArkPassiveDto, characterArkGridDto, characterEngravingsDto);
+                                             CharacterEngravingsDto characterEngravingsDto,
+                                             CharacterCardsDto characterCardsDto) {
+        return new CharacterInfoResponse(character, characterInfoDto, characterArkPassiveDto, characterArkGridDto, characterEngravingsDto, characterCardsDto);
     }
 
     private CharacterInfoResponse(Character character,
                                   CharacterInfoDto characterInfoDto,
                                   CharacterArkPassiveDto characterArkPassiveDto,
                                   CharacterArkGridDto characterArkGridDto,
-                                  CharacterEngravingsDto characterEngravingsDto) {
+                                  CharacterEngravingsDto characterEngravingsDto,
+                                  CharacterCardsDto characterCardsDto) {
         this.id                 = character.getId();
         this.characterName      = character.getCharacterName();
         this.serverName         = character.getServerName();
@@ -177,10 +195,10 @@ public class CharacterInfoResponse {
         this.arkPassivePoints = characterArkPassiveDto.getPoints();
         this.arkPassiveEffects = characterArkPassiveDto.getEffects().stream()
                 .map(e -> {
-                    // 1. 일단 툴팁을 파싱해서 리스트를 가져옵니다.
+                    // 툴팁 파싱
                     List<EffectDetail> details = DataUtil.parseTooltipForArkPassive(e.getTooltip());
 
-                    // 2. 리스트가 비어있지 않다면 첫 번째 요소를 꺼내고, 비어있으면 빈 값을 줍니다.
+                    // details 가공
                     String title = details.isEmpty() ? "" : details.get(0).getTitle();
                     String level = details.isEmpty() ? "" : details.get(0).getLevel();
                     String desc  = details.isEmpty() ? "" : details.get(0).getDescription();
@@ -190,13 +208,23 @@ public class CharacterInfoResponse {
                 })
                 .toList();
 
-        // 4. 아크 그리드 가공 (툴팁 파싱 로직 호출)
+        // 아크 그리드 가공 (툴팁 파싱 로직 호출)
         this.arkGridSlots = characterArkGridDto.getSlots().stream()
                 .map(s -> new ArkGridSlotResponse(s.getName(), s.getGrade(), DataUtil.parseTooltip(s.getTooltip())))
                 .toList();
         this.arkGridEffects = characterArkGridDto.getEffects();
 
-        // 5.각인 가공
+        // 각인 가공
         this.engravingsArkPassiveEffects = DataUtil.parseTooltipForEngravings(characterEngravingsDto.getArkPassiveEffects());
+
+        // 카드 리스트 가공
+        this.cards = characterCardsDto.getCardsDTO() == null ? List.of() :
+            characterCardsDto.getCardsDTO().stream()
+             .map(c -> new CardResponse(c.getName(), c.getIcon(), c.getGrade(), c.getAwakeCount()))
+            .toList();
+
+        // 카드 세트 이름, 효과
+        this.cardSetName = DataUtil.parseCardSetName(characterCardsDto);
+        this.cardSetEffects = DataUtil.parseCardSetEffects(characterCardsDto);
     }
 }

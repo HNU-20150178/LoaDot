@@ -111,34 +111,59 @@
               :style="{ 'border-left': `3px solid ${getGradeColor(engrave.Grade)}` }"
             >
               <div class="engrave-info">
-                <span class="engrave-name">{{ engrave.Name }}</span>
+                <span 
+                  class="engrave-name"      
+                  :style="{ 
+                    color: getGradeColor(engrave.Grade), 
+                  }"
+                >{{ engrave.Name }}</span>
                 <span class="engrave-grade-badge">{{ engrave.Grade }} Lv.{{ engrave.Level }}</span>
                 <span class="stone-level" v-if="engrave.AbilityStoneLevel">스톤 Lv.{{ engrave.AbilityStoneLevel }}</span>
               </div>
               <p class="engrave-passive-desc">{{ engrave.Description }}</p>
             </div>
           </div>
-          <div v-else class="no-data">활성화된 아크 패시브 각인이 없습니다.</div>
+          <div v-else class="no-data">활성화된 각인이 없습니다.</div>
         </section>
       </div>
 
       <div class="detail-column">
         <section class="qul-box glass">
           <h3 class="section-title">카드</h3>
-          <div class="card-grid">
-            <div v-for="card in characterData.cards" :key="card.name" class="card-item">
-              <img :src="card.image">
+          
+          <div v-if="characterData?.cards && characterData.cards.length > 0">
+            <div class="card">
+              <div 
+                v-for="card in characterData.cards" 
+                :key="card.name" 
+                class="card-item"
+                :style="{ borderColor: getGradeColor(card.grade) }"
+              >
+                <img :src="card.image" :alt="card.name" class="card-img">
+                
+                <div class="star-bar">
+                  <span 
+                    v-for="i in 5" 
+                    :key="i" 
+                    class="star"
+                    :class="{ 'active': i <= card.awakeCount }"
+                    :style="i <= card.awakeCount ? { color: getGradeColor(card.grade) } : {}"
+                  >★</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card-set-effect">
+              <span class="set-name" style="color: #ff9900;">{{ characterData.cardSetName }}</span>
+              <ul class="set-details">
+                <li v-for="effect in characterData.cardSetEffects" :key="effect">{{ effect }}</li>
+              </ul>
             </div>
           </div>
-          <div class="card-set-effect">
-            <span class="set-name">{{ characterData.cardSetName }}</span>
-            <ul class="set-details">
-              <li v-for="effect in characterData.cardSetEffects" :key="effect">{{ effect }}</li>
-            </ul>
-          </div>
+          
+          <div v-else class="no-data">활성화된 카드가 없습니다.</div>
         </section>
       </div>
-
     </div>
   </div>
 </template>
@@ -476,4 +501,55 @@ const filterEffects = (categoryName) => {
   white-space: pre-wrap;
 }
 .no-data { text-align: center; color: #666; font-size: 12px; padding: 20px 0; }
+
+
+/* ── 카드 ── */
+.card {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.card-item {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1.4;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background: #1c1e22;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.card-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.star-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 1px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 60%, rgba(0, 0, 0, 0) 100%);
+  padding: 15px 0 5px 0;
+}
+
+.star {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.15);
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.9);
+}
+
+.star.active {
+  text-shadow: 0 0 4px currentColor, 1px 1px 1px rgba(0, 0, 0, 0.8);
+}
+
 </style>
