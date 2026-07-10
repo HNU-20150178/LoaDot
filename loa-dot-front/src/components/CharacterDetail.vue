@@ -161,7 +161,7 @@
             </div>
           </div>
           
-          <div v-else class="no-data">활성화된 카드가 없습니다.</div>
+          <div v-else class="no-data"> 활성화된 카드가 없습니다. </div>
         </section>
       </div>
     </div>

@@ -3,6 +3,6 @@
 
 | 메인 대시보드 | 캐릭터 상세 정보 |
 | :---: | :---: |
-| ![alt text](image-1.png) | ![alt text](image.png)
+| ![alt text](main.png) | ![alt text](character search result.png)
 
 위 화면은 개발 중인 UI 예시이며, 실제 API 데이터를 바탕으로 시각화된 대시보드를 제공합니다.
