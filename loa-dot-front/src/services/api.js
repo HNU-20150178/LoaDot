@@ -63,31 +63,5 @@ export const characterAPI = {
   },
 };
 
-/**
- * 길드 API
- */
-export const guildAPI = {
-  /**
-   * 길드 정보 조회
-   * @param {string} guildName - 길드명
-   * @returns {Promise<Object>} 길드 데이터
-   */
-  async getGuildInfo(guildName) {
-    try {
-      const response = await apiClient.get(`/guilds/${guildName}`);
-      return {
-        success: true,
-        data: response.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || '길드를 찾을 수 없습니다.',
-        status: error.response?.status
-      };
-    }
-  }
-};
-
 // 기본 export (필요시)
 export default apiClient;

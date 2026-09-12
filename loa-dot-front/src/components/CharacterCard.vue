@@ -89,7 +89,6 @@ const handleReset = () => {
       </div>
     </div>
 
-    <!-- 하단 길드+임시버튼 -->
     <div class="card-footer">
       <span class="guild-name">
         <span class="guild-icon">길드:</span>

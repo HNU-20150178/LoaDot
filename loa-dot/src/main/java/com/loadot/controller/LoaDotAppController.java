@@ -16,10 +16,8 @@ public class LoaDotAppController {
 
 	private final CharacterService characterService;
 
-	// 2. HTTP GET 요청을 처리하고, 경로에 있는 이름을 변수로 받음
 	@GetMapping("/{characterName}")
 	public ResponseEntity<CharacterInfoResponse> getCharacterInfo(@PathVariable String characterName) {
-		// 3. 서비스에서 저장 및 반환된 CharacterInfo response를 클라이언트에게 전달
 		CharacterInfoResponse response = characterService.getAndSaveCharacter(characterName);
 		return ResponseEntity.ok(response);
 	}
