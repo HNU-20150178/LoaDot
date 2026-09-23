@@ -89,6 +89,14 @@
               >
                 {{ arkgrid.grade }}
               </span>
+              <span class="ark-point"
+              :style="{ 
+                    color: getGradeColor(arkgrid.grade), 
+                    backgroundColor: `${getGradeColor(arkgrid.grade)}24`
+                  }"
+                >
+                ({{ arkgrid.point }})
+              </span>
             </div>
             <div class="ark-tooltip-box">
               <p v-for="(line, idx) in arkgrid.parsedTooltip" :key="idx" class="tooltip-line">
@@ -424,6 +432,7 @@ const filterEffects = (categoryName) => {
 /* ── 아크 그리드 ── */
 .ark-item {
   margin-bottom: 10px;
+  position: relative;
 }
 
 .ark-header {
@@ -434,7 +443,7 @@ const filterEffects = (categoryName) => {
 }
 
 .ark-name {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   color: #ddd;
 }
@@ -446,10 +455,31 @@ const filterEffects = (categoryName) => {
 }
 
 .ark-tooltip-box {
-  padding: 6px 8px;
-  background: rgba(255,255,255,0.03);
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+  pointer-events: none;
+  width: max-content;
+  max-width: 350px;
+  padding: 10px 12px;
+  background-color: rgba(20, 20, 20, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+.ark-header:hover + .ark-tooltip-box,
+.ark-tooltip-box:hover {
+  display: block;
+}
+
+.tooltip-line {
+  margin: 0;
+  padding: 2px 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #e0e0e0;
 }
 
 .tooltip-line {

@@ -1,6 +1,4 @@
 <script setup>
-// 헤더
-// vuerouter 추가 예정 
 </script>
 
 <template>

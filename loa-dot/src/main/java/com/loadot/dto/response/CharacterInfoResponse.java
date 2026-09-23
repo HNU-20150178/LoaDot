@@ -112,9 +112,10 @@ public class CharacterInfoResponse {
     public static class ArkGridSlotResponse {
         private final String name;
         private final String grade;
+        private final String point;
         private final List<String> parsedTooltip;
-        public ArkGridSlotResponse(String name, String grade, List<String> tooltip) {
-            this.name = name; this.grade = grade; this.parsedTooltip = tooltip;
+        public ArkGridSlotResponse(String name, String grade, String point, List<String> tooltip) {
+            this.name = name; this.grade = grade; this.point = point; this.parsedTooltip = tooltip;
         }
     }
 
@@ -210,7 +211,7 @@ public class CharacterInfoResponse {
 
         // 아크 그리드 가공 (툴팁 파싱 로직 호출)
         this.arkGridSlots = characterArkGridDto.getSlots().stream()
-                .map(s -> new ArkGridSlotResponse(s.getName(), s.getGrade(), DataUtil.parseTooltip(s.getTooltip())))
+                .map(s -> new ArkGridSlotResponse(s.getName(), s.getGrade(), s.getPoint(), DataUtil.parseTooltip(s.getTooltip())))
                 .toList();
         this.arkGridEffects = characterArkGridDto.getEffects();
 
