@@ -5,7 +5,7 @@ export const GRADE_COLORS = {
   '영웅': '#ce43ffff',
   '전설': '#ff9900',
   '유물': '#ea6000',
-  '고대': '#b380ff',
+  '고대': '#CDB89A',
   '에스더': '#4afbe6'
 }
 

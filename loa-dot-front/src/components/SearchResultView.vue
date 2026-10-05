@@ -1,30 +1,30 @@
 <template>
-  <SearchBox 
-    v-model:searchName="localSearchName"
-    :loading="loading"
-    :errorMsg="errorMsg"
-    @search="handleNewSearch"
-  />
+  <div class="search-result-container">
 
-  <div class="status-msg" v-if="loading">로딩 중...</div>
-  <div class="status-msg" v-else-if="errorMsg">{{ errorMsg }}</div>
-  
-  <template v-else-if="characterData">
-    <CharacterCard 
-      :characterData="characterData"
-      @reset="goHome"
-    />
-    <CharacterDetail 
-      :characterData="characterData"
-    />
-  </template>
+    <div class="status-msg" v-if="loading">로딩 중...</div>
+    <div class="status-msg" v-else-if="errorMsg">{{ errorMsg }}</div>
+    
+    <div class="content-layout" v-else-if="characterData">
+      <aside class="profile-sidebar">
+        <CharacterCard 
+          :characterData="characterData"
+          @reset="goHome"
+        />
+      </aside>
+      
+      <main class="detail-main">
+        <CharacterDetail 
+          :characterData="characterData"
+        />
+      </main>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { characterAPI } from '../services/api' // 상대 경로 맞춤
-import SearchBox from './SearchBox.vue'
+import { characterAPI } from '../services/api'
 import CharacterCard from './CharacterCard.vue'
 import CharacterDetail from './CharacterDetail.vue'
 
@@ -83,5 +83,42 @@ const goHome = () => {
 </script>
 
 <style scoped>
-.status-msg { margin: 20px; font-size: 1.2rem; }
+.search-result-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.content-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.profile-sidebar {
+  flex-shrink: 0;
+  width: 320px;
+}
+
+.detail-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.status-msg {
+  margin: 20px 0;
+  font-size: 1.2rem;
+}
+
+@media (max-width: 1024px) {
+  .content-layout {
+    flex-direction: column;
+  }
+  .profile-sidebar {
+    width: 100%;
+  }
+}
 </style>

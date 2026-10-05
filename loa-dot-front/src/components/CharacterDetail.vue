@@ -62,8 +62,8 @@
           <hr class="divider">
           <div class="combat-stats-grid">
             <div v-for="stat in combatStats" :key="stat.type" class="stat-row small">
-              <span class="label">{{ stat.Type }}</span>
-              <span class="value">{{ stat.Value }}</span>
+              <span class="label">{{ stat.type }}</span>
+              <span class="value">{{ stat.value }}</span>
             </div>
           </div>
         </section>
@@ -83,16 +83,14 @@
               <span 
                 class="ark-grade"
                 :style="{ 
-                  color: getGradeColor(arkgrid.grade), 
-                  backgroundColor: `${getGradeColor(arkgrid.grade)}24`
+                  color: getGradeColor(arkgrid.grade)
                 }"
               >
                 {{ arkgrid.grade }}
               </span>
               <span class="ark-point"
               :style="{ 
-                    color: getGradeColor(arkgrid.grade), 
-                    backgroundColor: `${getGradeColor(arkgrid.grade)}24`
+                    color: getGradeColor(arkgrid.grade)
                   }"
                 >
                 ({{ arkgrid.point }})
@@ -140,32 +138,50 @@
           <h3 class="section-title">카드</h3>
           
           <div v-if="characterData?.cards && characterData.cards.length > 0">
-            <div class="card">
-              <div 
-                v-for="card in characterData.cards" 
-                :key="card.name" 
-                class="card-item"
-                :style="{ borderColor: getGradeColor(card.grade) }"
-              >
-                <img :src="card.image" :alt="card.name" class="card-img">
-                
-                <div class="star-bar">
-                  <span 
-                    v-for="i in 5" 
-                    :key="i" 
-                    class="star"
-                    :class="{ 'active': i <= card.awakeCount }"
-                    :style="i <= card.awakeCount ? { color: getGradeColor(card.grade) } : {}"
-                  >★</span>
+            <div class="card-wrap" tabindex="0">
+              <div class="card">
+                <div
+                  v-for="card in characterData.cards"
+                  :key="card.name"
+                  class="card-item"
+                  :style="{ borderColor: getGradeColor(card.grade) }"
+                >
+                  <img :src="card.image" :alt="card.name" class="card-img">
+                  <div class="star-bar">
+                    <span
+                      v-for="i in 5"
+                      :key="i"
+                      class="star"
+                      :class="{ active: i <= card.awakeCount }"
+                      :style="i <= card.awakeCount ? { color: getGradeColor(card.grade) } : {}"
+                    >★</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 카드 툴팁 -->
+              <div class="card-tooltip" role="tooltip">
+                <div class="tt-title">카드 정보</div>
+
+                <div class="tt-cards">
+                  <div v-for="card in characterData.cards" :key="card.name" class="tt-card">
+                    <span class="tt-name">{{ card.name }}</span>
+                    <span class="tt-awake">+{{ card.awakeCount }}</span>
+                  </div>
+                </div>
+
+                <div class="tt-effects">
+                  <div class="tt-effects-title">카드 효과</div>
+                  <ul>
+                    <li v-for="effect in characterData.cardSetEffects" :key="effect">{{ effect }}</li>
+                  </ul>
                 </div>
               </div>
             </div>
-            
+
+            <!-- 세트 이름만 남기고 효과 목록(ul)은 툴팁으로 이동 -->
             <div class="card-set-effect">
               <span class="set-name" style="color: #ff9900;">{{ characterData.cardSetName }}</span>
-              <ul class="set-details">
-                <li v-for="effect in characterData.cardSetEffects" :key="effect">{{ effect }}</li>
-              </ul>
             </div>
           </div>
           
@@ -241,12 +257,15 @@ const filterEffects = (categoryName) => {
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  padding: 15px;
+  padding-left: 15px;
+  padding-right: 15px;
+  margin-bottom: 5px;
 }
 
 .section-title {
   font-size: 14px;
   text-align: center;
+  margin-top: 6px;
   margin-bottom: 6px;
   font-weight: bold;
   color: #fff;
@@ -254,7 +273,7 @@ const filterEffects = (categoryName) => {
 
 .passive-title {
   text-align: center;
-  font-size: 11px;
+  font-size: 13px;
   color: #888;
   margin-bottom: 16px;
 }
@@ -269,7 +288,7 @@ const filterEffects = (categoryName) => {
 .divider {
   border: 0;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin: 10px 0;
+  margin: 3px 0;
 }
 
 /* ── 아크패시브 카테고리 그룹 ── */
@@ -454,6 +473,10 @@ const filterEffects = (categoryName) => {
   margin-left: auto;
 }
 
+.ark-point {
+  font-size: 11px;
+}
+
 .ark-tooltip-box {
   display: none;
   position: absolute;
@@ -581,5 +604,86 @@ const filterEffects = (categoryName) => {
 .star.active {
   text-shadow: 0 0 4px currentColor, 1px 1px 1px rgba(0, 0, 0, 0.8);
 }
+
+.card-wrap {
+  position: relative;
+  width: fit-content; /* 기존 .card 레이아웃 안 깨지게 */
+  outline: none;
+}
+
+.card-tooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  z-index: 50;
+  width: max-content;
+  min-width: 260px;
+  max-width: 360px;
+  padding: 10px 12px;
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #e5e5e5;
+  font-size: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+}
+
+/* 말풍선 화살표 */
+.card-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: #1e1e1e;
+  border-right: 1px solid #333;
+  border-bottom: 1px solid #333;
+  transform: translate(-50%, -5px) rotate(45deg);
+}
+
+.card-wrap:hover .card-tooltip,
+.card-wrap:focus-within .card-tooltip,
+.card-wrap:focus .card-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.tt-title {
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.tt-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+  margin-bottom: 10px;
+}
+
+.tt-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.tt-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tt-awake { color: #facc15; }
+
+.tt-effects {
+  border-top: 1px solid #374151;
+  padding-top: 8px;
+}
+.tt-effects-title { color: #93c5fd; font-weight: 500; margin-bottom: 4px; }
+.tt-effects ul { list-style: none; margin: 0; padding: 0; }
+.tt-effects li { font-size: 11px; line-height: 1.5; color: #facc15; margin-bottom: 2px; }
 
 </style>
