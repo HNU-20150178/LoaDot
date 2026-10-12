@@ -38,6 +38,13 @@ public class CharacterService {
             throw new RuntimeException("캐릭터 정보를 찾을 수 없습니다.");
         }
 
+        // 로스트아크 API 호출 (캐릭터 장비 가져오기)
+        CharacterEquipmentDto characterEquipmentDto = lostarkWebClient.get()
+                .uri("/armories/characters/" + characterName + "/equipment")
+                .retrieve()
+                .bodyToMono(CharacterEquipmentDto.class)
+                .block();
+
         // 로스트아크 API 호출 (캐릭터 아크패시브 가져오기)
         CharacterArkPassiveDto characterArkPassivedto = lostarkWebClient.get()
                 .uri("/armories/characters/" + characterName + "/arkpassive")
@@ -75,7 +82,7 @@ public class CharacterService {
         this.recordCharacterHistory(character);
 
         // Entity -> Response DTO 변환 후 반환
-        return CharacterInfoResponse.from(character, characterInfodto, characterArkPassivedto, characterArkGridDto, characterEngravingsDto, characterCardsDto);
+        return CharacterInfoResponse.from(character, characterInfodto, characterArkPassivedto, characterArkGridDto, characterEngravingsDto, characterCardsDto, characterEquipmentDto);
     }
 
     /**

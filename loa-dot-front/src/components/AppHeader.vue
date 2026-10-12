@@ -48,7 +48,6 @@ const handleHeaderSearch = (searchName) => {
   outline: none;
 }
 
-/* 홈 화면 헤더 (기존 유지) */
 header.header-home {
   margin-bottom: 2rem;
   display: flex;

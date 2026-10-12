@@ -2,6 +2,7 @@ package com.loadot.util;
 
 import com.loadot.dto.CharacterCardsDto;
 import com.loadot.dto.CharacterEngravingsDto;
+import com.loadot.dto.CharacterEquipmentDto;
 import com.loadot.dto.response.CharacterInfoResponse;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -199,5 +200,24 @@ public class DataUtil {
                     .toList();
         }
         return List.of();
+    }
+
+    /**
+     * 캐릭터 장비 response 가공
+     */
+    public static List<CharacterInfoResponse.EquipmentResponse> parseEquipmentResponse(CharacterEquipmentDto characterEquipmentDto) {
+        if (characterEquipmentDto == null || characterEquipmentDto.getEquipments() == null) {
+            return List.of();
+        }
+
+        return characterEquipmentDto.getEquipments().stream()
+                .map(eq -> new CharacterInfoResponse.EquipmentResponse(
+                        eq.getType(),
+                        eq.getName(),
+                        eq.getIcon(),
+                        eq.getGrade(),
+                        eq.getTooltip()
+                ))
+                .toList();
     }
 }

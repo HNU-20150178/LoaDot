@@ -66,6 +66,9 @@ public class CharacterInfoResponse {
     private final String cardSetName;
     private final List<String> cardSetEffects;
 
+    // 캐릭터 장비
+    private final List<EquipmentResponse> Equipments;
+
     @Getter
     public static class StatResponse {
         private final String type;
@@ -133,6 +136,17 @@ public class CharacterInfoResponse {
         }
     }
 
+    // 캐릭터 장비
+    @Getter
+    public static class EquipmentResponse {
+        private final String type;
+        private final String name;
+        private final String icon;
+        private final String grade ;
+        private final String tooltip;
+        public EquipmentResponse(String type, String name, String icon, String grade, String tooltip)  { this.type = type; this.name = name; this.icon = icon; this.grade = grade; this.tooltip = tooltip; }
+    }
+
     private final LocalDateTime updatedAt;
 
     // Entity,Dto -> Response DTO 변환 (정적 팩토리 메서드)
@@ -141,8 +155,9 @@ public class CharacterInfoResponse {
                                              CharacterArkPassiveDto characterArkPassiveDto,
                                              CharacterArkGridDto characterArkGridDto,
                                              CharacterEngravingsDto characterEngravingsDto,
-                                             CharacterCardsDto characterCardsDto) {
-        return new CharacterInfoResponse(character, characterInfoDto, characterArkPassiveDto, characterArkGridDto, characterEngravingsDto, characterCardsDto);
+                                             CharacterCardsDto characterCardsDto,
+                                             CharacterEquipmentDto characterEquipmentDto) {
+        return new CharacterInfoResponse(character, characterInfoDto, characterArkPassiveDto, characterArkGridDto, characterEngravingsDto, characterCardsDto, characterEquipmentDto);
     }
 
     private CharacterInfoResponse(Character character,
@@ -150,7 +165,8 @@ public class CharacterInfoResponse {
                                   CharacterArkPassiveDto characterArkPassiveDto,
                                   CharacterArkGridDto characterArkGridDto,
                                   CharacterEngravingsDto characterEngravingsDto,
-                                  CharacterCardsDto characterCardsDto) {
+                                  CharacterCardsDto characterCardsDto,
+                                  CharacterEquipmentDto characterEquipmentDto) {
         this.id                 = character.getId();
         this.characterName      = character.getCharacterName();
         this.serverName         = character.getServerName();
@@ -227,5 +243,8 @@ public class CharacterInfoResponse {
         // 카드 세트 이름, 효과
         this.cardSetName = DataUtil.parseCardSetName(characterCardsDto);
         this.cardSetEffects = DataUtil.parseCardSetEffects(characterCardsDto);
+
+        // 캐릭터 장비
+        this.Equipments = DataUtil.parseEquipmentResponse(characterEquipmentDto);
     }
 }

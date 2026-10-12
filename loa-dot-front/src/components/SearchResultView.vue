@@ -87,7 +87,8 @@ const goHome = () => {
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
   box-sizing: border-box;
 }
 
