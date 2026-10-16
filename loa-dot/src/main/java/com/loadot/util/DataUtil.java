@@ -6,10 +6,12 @@ import com.loadot.dto.CharacterEquipmentDto;
 import com.loadot.dto.response.CharacterInfoResponse;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class DataUtil {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -176,8 +178,8 @@ public class DataUtil {
         if (rawEffects != null && !rawEffects.isEmpty() && rawEffects.get(0).getItems() != null && !rawEffects.get(0).getItems().isEmpty()) {
             List<CharacterCardsDto.EffectItemDto> items = rawEffects.get(0).getItems();
 
-            // 가장 마지막(가장 높은 단계) 활성화 옵션 이름에서 세트 명칭 추출
-            String lastEffectName = items.get(items.size() - 1).getName();
+            // 가장 높은 활성화 옵션 이름에서 세트 명칭 추출
+            String lastEffectName = items.getLast().getName();
             return lastEffectName.split(" \\d+세트")[0].trim();
         }
         return "적용된 카드 세트 없음";
@@ -191,8 +193,8 @@ public class DataUtil {
         if (characterCardsDto == null) return List.of();
 
         List<CharacterCardsDto.EffectsDto> rawEffects = characterCardsDto.getEffects();
-        if (rawEffects != null && !rawEffects.isEmpty() && rawEffects.get(0).getItems() != null && !rawEffects.get(0).getItems().isEmpty()) {
-            List<CharacterCardsDto.EffectItemDto> items = rawEffects.get(0).getItems();
+        if (rawEffects != null && !rawEffects.isEmpty() && rawEffects.getFirst().getItems() != null && !rawEffects.get(0).getItems().isEmpty()) {
+            List<CharacterCardsDto.EffectItemDto> items = rawEffects.getFirst().getItems();
 
             // Name과 Description을 결합하여 가공 문자열 리스트 생성
             return items.stream()
@@ -205,19 +207,128 @@ public class DataUtil {
     /**
      * 캐릭터 장비 response 가공
      */
-    public static List<CharacterInfoResponse.EquipmentResponse> parseEquipmentResponse(CharacterEquipmentDto characterEquipmentDto) {
-        if (characterEquipmentDto == null || characterEquipmentDto.getEquipments() == null) {
+    public static List<CharacterInfoResponse.EquipmentResponse> parseEquipmentResponse(List<CharacterEquipmentDto> equipmentList) {
+        if (equipmentList == null || equipmentList.isEmpty()) {
             return List.of();
         }
 
-        return characterEquipmentDto.getEquipments().stream()
-                .map(eq -> new CharacterInfoResponse.EquipmentResponse(
-                        eq.getType(),
-                        eq.getName(),
-                        eq.getIcon(),
-                        eq.getGrade(),
-                        eq.getTooltip()
-                ))
+        return equipmentList.stream().map(dto -> {
+                    Integer quality = null;
+                    Integer petBorder = null;
+                    String arkPassivePointText = null;
+                    String mainStatText = null;
+                    List<CharacterInfoResponse.AccOptionDetail> accOptions = new ArrayList<>();
+
+                    // Tooltip JSON에서 qualityValue와 petBorder 파싱
+                    if (dto.getTooltip() != null && !dto.getTooltip().isBlank()) {
+                        try {
+                            JsonNode root = objectMapper.readTree(dto.getTooltip());
+                            JsonNode itemTitleValue = root.path("Element_001").path("value");
+
+                            if (!itemTitleValue.isMissingNode() && itemTitleValue.isObject()) {
+                                // 품질
+                                if (itemTitleValue.has("qualityValue")) {
+                                    quality = itemTitleValue.path("qualityValue").asInt();
+                                }
+
+                                // 테두리
+                                JsonNode slotData = itemTitleValue.path("slotData");
+                                if (slotData.has("petBorder")) {
+                                    petBorder = slotData.path("petBorder").asInt();
+                                }
+
+                                for (JsonNode node : root) {
+                                    String type = node.path("type").asString();
+                                    JsonNode value = node.path("value");
+
+                                    // ItemPartBox (연마 효과, 깨달음/도약 포인트, 힘민지 등)
+                                    if ("ItemPartBox".equals(type) && value.isObject()) {
+                                        String title = cleanHtml(value.path("Element_000").asString());
+                                        String content = cleanHtml(value.path("Element_001").asString());
+
+                                        if (title.contains("아크 패시브") || content.contains("깨달음") || content.contains("도약")) {
+                                            // 깨달음
+                                            arkPassivePointText = content;
+                                        } else if (title.contains("연마 효과")) {
+                                            // 연마 효과 파싱
+                                            parseAccOptionItem(content, accOptions);
+                                        } else if (title.contains("기본 효과") && (content.contains("힘") || content.contains("민첩") || content.contains("지능"))) {
+                                            // 힘, 민첩, 지능
+                                            mainStatText = content;
+                                        }
+                                    }
+
+                                    // 어빌리티 스톤 각인파싱 (IndentStringGroup)
+                                    if ("어빌리티 스톤".equals(dto.getType()) && "IndentStringGroup".equals(type) && value.isObject()) {
+                                        parseAbilityStoneEngraves(value, accOptions);
+                                    }
+                                }
+                            }
+                        } catch (Exception e) {
+                            log.warn("장비 툴팁 파싱 실패 (장비명: {}): {}", dto.getName(), e.getMessage());
+                        }
+                    }
+
+                    return new CharacterInfoResponse.EquipmentResponse(
+                            dto.getType(),
+                            dto.getName(),
+                            dto.getIcon(),
+                            dto.getGrade(),
+                            quality,
+                            petBorder,
+                            arkPassivePointText,
+                            mainStatText,
+                            accOptions
+                    );
+                })
                 .toList();
+    }
+    /**
+     * 연마 효과 문장 파싱
+     */
+    private static void parseAccOptionItem(String contentText, List<CharacterInfoResponse.AccOptionDetail> accOptions) {
+        if (contentText == null || contentText.isBlank()) return;
+
+        // 여러 줄로 들어오는 경우 분리
+        String[] lines = contentText.split("\n");
+        for (String line : lines) {
+            String trimmed = line.trim();
+            if (trimmed.isEmpty()) continue;
+
+            String tierBadge = null;
+            if (trimmed.contains("[상]")) { tierBadge = "상"; trimmed = trimmed.replace("[상]", "").trim(); }
+            else if (trimmed.contains("[중]")) { tierBadge = "중"; trimmed = trimmed.replace("[중]", "").trim(); }
+            else if (trimmed.contains("[하]")) { tierBadge = "하"; trimmed = trimmed.replace("[하]", "").trim(); }
+
+            // 옵션명과 값 분리
+            int plusIndex = trimmed.lastIndexOf("+");
+            if (plusIndex != -1) {
+                String optName = trimmed.substring(0, plusIndex).trim();
+                String optValue = trimmed.substring(plusIndex).trim();
+                accOptions.add(new CharacterInfoResponse.AccOptionDetail(optName, optValue, tierBadge));
+            } else {
+                accOptions.add(new CharacterInfoResponse.AccOptionDetail(trimmed, "", tierBadge));
+            }
+        }
+    }
+
+    /**
+     * 스톤 각인 효과 파싱
+     */
+    private static void parseAbilityStoneEngraves(JsonNode indentGroupNode, List<CharacterInfoResponse.AccOptionDetail> accOptions) {
+        JsonNode element000 = indentGroupNode.path("Element_000");
+        if (cleanHtml(element000.path("topStr").asString()).contains("무작위 각인 효과")) {
+            element000.path("contentStr").forEach(itemNode -> {
+                String cleaned = cleanHtml(itemNode.path("contentStr").asString()).trim();
+                if (cleaned.contains("[") && cleaned.contains("]") && !cleaned.contains("레벨 보너스")) {
+                    int start = cleaned.indexOf("[");
+                    int end = cleaned.indexOf("]");
+                    String name = cleaned.substring(start + 1, end).trim();
+                    String level = cleaned.contains("Lv.") ? cleaned.substring(cleaned.indexOf("Lv.") + 3).trim() : "0";
+
+                    accOptions.add(new CharacterInfoResponse.AccOptionDetail(name, level, null));
+                }
+            });
+        }
     }
 }

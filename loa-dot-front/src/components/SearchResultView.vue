@@ -12,6 +12,9 @@
         />
       </aside>
       
+      <CharacterEquipment 
+        :characterData="characterData"
+      />
       <main class="detail-main">
         <CharacterDetail 
           :characterData="characterData"
@@ -27,6 +30,7 @@ import { useRouter } from 'vue-router'
 import { characterAPI } from '../services/api'
 import CharacterCard from './CharacterCard.vue'
 import CharacterDetail from './CharacterDetail.vue'
+import CharacterEquipment from './CharacterEquipment.vue'
 
 const props = defineProps({
   characterName: { type: String, required: true }

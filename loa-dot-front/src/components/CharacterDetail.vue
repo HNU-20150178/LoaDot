@@ -179,7 +179,6 @@
               </div>
             </div>
 
-            <!-- 세트 이름만 남기고 효과 목록(ul)은 툴팁으로 이동 -->
             <div class="card-set-effect">
               <span class="set-name" style="color: #ff9900;">{{ characterData.cardSetName }}</span>
             </div>

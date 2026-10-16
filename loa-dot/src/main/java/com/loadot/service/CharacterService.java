@@ -8,9 +8,11 @@ import com.loadot.repository.CharacterHistoryRepository;
 import com.loadot.repository.CharacterRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -39,10 +41,10 @@ public class CharacterService {
         }
 
         // 로스트아크 API 호출 (캐릭터 장비 가져오기)
-        CharacterEquipmentDto characterEquipmentDto = lostarkWebClient.get()
+        List<CharacterEquipmentDto> characterEquipmentList = lostarkWebClient.get()
                 .uri("/armories/characters/" + characterName + "/equipment")
                 .retrieve()
-                .bodyToMono(CharacterEquipmentDto.class)
+                .bodyToMono(new ParameterizedTypeReference<List<CharacterEquipmentDto>>() {})
                 .block();
 
         // 로스트아크 API 호출 (캐릭터 아크패시브 가져오기)
@@ -82,7 +84,7 @@ public class CharacterService {
         this.recordCharacterHistory(character);
 
         // Entity -> Response DTO 변환 후 반환
-        return CharacterInfoResponse.from(character, characterInfodto, characterArkPassivedto, characterArkGridDto, characterEngravingsDto, characterCardsDto, characterEquipmentDto);
+        return CharacterInfoResponse.from(character, characterInfodto, characterArkPassivedto, characterArkGridDto, characterEngravingsDto, characterCardsDto, characterEquipmentList);
     }
 
     /**

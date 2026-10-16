@@ -83,19 +83,18 @@ header.header-result h1 {
   color: #00d2d3; 
 }
 
-/* ── 핵심: SearchBox를 헤더 안에서 가로형으로 강제 변환 ── */
 .search-bar-area :deep(.search-box) {
   display: flex;
-  flex-direction: row; /* 세로 정렬을 가로 정렬로 변경! */
+  flex-direction: row;
   align-items: center;
-  width: 380px;        /* 검색바 전체 가로 폭 조절 */
-  gap: 8px;            /* 인풋창과 버튼 사이 간격 */
+  width: 380px;
+  gap: 8px;
 }
 
 .search-bar-area :deep(input) {
-  flex: 1;             /* 남은 공간을 인풋창이 다 차지하게 */
+  flex: 1;
   padding: 10px 14px;
-  text-align: left;    /* 글자 왼쪽 정렬 */
+  text-align: left;
   height: 40px;
   box-sizing: border-box;
 }
@@ -107,7 +106,6 @@ header.header-result h1 {
   white-space: nowrap;
 }
 
-/* 혹시 에러 메시지가 생겼을 때 레이아웃 깨짐 방지 */
 .search-bar-area :deep(.error) {
   position: absolute;
   top: 60px;

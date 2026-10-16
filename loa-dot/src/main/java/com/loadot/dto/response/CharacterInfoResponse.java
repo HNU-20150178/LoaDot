@@ -67,7 +67,107 @@ public class CharacterInfoResponse {
     private final List<String> cardSetEffects;
 
     // 캐릭터 장비
-    private final List<EquipmentResponse> Equipments;
+    private final List<CharacterInfoResponse.EquipmentResponse> equipments;
+    private final LocalDateTime updatedAt;
+
+    private CharacterInfoResponse(Character character,
+                                  CharacterInfoDto characterInfoDto,
+                                  CharacterArkPassiveDto characterArkPassiveDto,
+                                  CharacterArkGridDto characterArkGridDto,
+                                  CharacterEngravingsDto characterEngravingsDto,
+                                  CharacterCardsDto characterCardsDto,
+                                  List<CharacterEquipmentDto> characterEquipmentDtoList) {
+        this.id                 = character.getId();
+        this.characterName      = character.getCharacterName();
+        this.serverName         = character.getServerName();
+        this.characterClassName = character.getCharacterClassName();
+        this.characterLevel     = character.getCharacterLevel();
+        this.expeditionLevel    = character.getExpeditionLevel();
+        this.itemAvgLevel       = character.getItemAvgLevel();
+        this.itemAvgLevelDouble = character.getItemAvgLevelDouble();
+        this.combatPower        = character.getCombatPower();
+        this.combatPowerDouble  = character.getCombatPowerDouble();
+        this.title              = character.getTitle();
+        this.guildName          = character.getGuildName();
+        this.guildMemberGrade   = character.getGuildMemberGrade();
+        this.townLevel          = character.getTownLevel();
+        this.townName           = character.getTownName();
+        this.usingSkillPoint    = character.getUsingSkillPoint();
+        this.totalSkillPoint    = character.getTotalSkillPoint();
+        this.honorPoint         = character.getHonorPoint();
+        this.characterImage     = character.getCharacterImage();
+        this.symbol             = character.getSymbol();
+        this.decorationEmblems  = character.getDecorationEmblems();
+        this.updatedAt          = character.getUpdatedAt();
+
+        // 스탯 필터링 및 가공
+        List<CharacterInfoDto.StatDto> rawStats = characterInfoDto.getStats();
+        List<String> combatTargets = List.of("치명", "특화", "제압", "신속", "인내", "숙련");
+
+        this.combatStats = rawStats.stream()
+                .filter(s -> combatTargets.contains(s.getType()))
+                .map(s -> new StatResponse(s.getType(), s.getValue()))
+                .toList();
+
+        String ap = rawStats.stream().filter(s -> "공격력".equals(s.getType())).findFirst().map(CharacterInfoDto.StatDto::getValue).orElse("0");
+        String hp = rawStats.stream().filter(s -> "최대 생명력".equals(s.getType())).findFirst().map(CharacterInfoDto.StatDto::getValue).orElse("0");
+        this.baseStats = new BaseStatResponse(ap, hp);
+
+        this.tendencies = characterInfoDto.getTendencies();
+        this.decorations = characterInfoDto.getDecorations();
+
+        // 아크 패시브 가공 (툴팁 파싱 로직 호출)
+        this.arkPassiveTitle = characterArkPassiveDto.getTitle();
+        this.isArkPassive = characterArkPassiveDto.getIsArkPassive();
+        this.arkPassivePoints = characterArkPassiveDto.getPoints();
+        this.arkPassiveEffects = characterArkPassiveDto.getEffects().stream()
+                .map(e -> {
+                    // 툴팁 파싱
+                    List<EffectDetail> details = DataUtil.parseTooltipForArkPassive(e.getTooltip());
+
+                    // details 가공
+                    String title = details.isEmpty() ? "" : details.getFirst().getTitle();
+                    String level = details.isEmpty() ? "" : details.getFirst().getLevel();
+                    String desc  = details.isEmpty() ? "" : details.getFirst().getDescription();
+
+                    // 3. 평면화된 DTO로 생성
+                    return new ArkPassiveEffectResponse(e.getName(), e.getIcon(), title, level, desc);
+                })
+                .toList();
+
+        // 아크 그리드 가공 (툴팁 파싱 로직 호출)
+        this.arkGridSlots = characterArkGridDto.getSlots().stream()
+                .map(s -> new ArkGridSlotResponse(s.getName(), s.getGrade(), s.getPoint(), DataUtil.parseTooltip(s.getTooltip())))
+                .toList();
+        this.arkGridEffects = characterArkGridDto.getEffects();
+
+        // 각인 가공
+        this.engravingsArkPassiveEffects = DataUtil.parseTooltipForEngravings(characterEngravingsDto.getArkPassiveEffects());
+
+        // 카드 리스트 가공
+        this.cards = characterCardsDto.getCardsDTO() == null ? List.of() :
+            characterCardsDto.getCardsDTO().stream()
+             .map(c -> new CardResponse(c.getName(), c.getIcon(), c.getGrade(), c.getAwakeCount()))
+            .toList();
+
+        // 카드 세트 이름, 효과
+        this.cardSetName = DataUtil.parseCardSetName(characterCardsDto);
+        this.cardSetEffects = DataUtil.parseCardSetEffects(characterCardsDto);
+
+        // 캐릭터 장비
+        this.equipments = DataUtil.parseEquipmentResponse(characterEquipmentDtoList);
+    }
+
+    // Entity,Dto -> Response DTO 변환 (정적 팩토리 메서드)
+    public static CharacterInfoResponse from(Character character,
+                                             CharacterInfoDto characterInfoDto,
+                                             CharacterArkPassiveDto characterArkPassiveDto,
+                                             CharacterArkGridDto characterArkGridDto,
+                                             CharacterEngravingsDto characterEngravingsDto,
+                                             CharacterCardsDto characterCardsDto,
+                                             List<CharacterEquipmentDto> characterEquipmentDtoList) {
+        return new CharacterInfoResponse(character, characterInfoDto, characterArkPassiveDto, characterArkGridDto, characterEngravingsDto, characterCardsDto, characterEquipmentDtoList);
+    }
 
     @Getter
     public static class StatResponse {
@@ -143,108 +243,28 @@ public class CharacterInfoResponse {
         private final String name;
         private final String icon;
         private final String grade ;
-        private final String tooltip;
-        public EquipmentResponse(String type, String name, String icon, String grade, String tooltip)  { this.type = type; this.name = name; this.icon = icon; this.grade = grade; this.tooltip = tooltip; }
+        private final Integer quality;
+        private final Integer petBorder;
+        private final String arkPassivePointText;
+        private final String mainStatText;
+        private final List<AccOptionDetail> accOptions;
+
+        public EquipmentResponse(String type, String name, String icon, String grade, Integer quality, Integer petBorder, String arkPassivePointText, String mainStatText, List<AccOptionDetail> accOptions)  { this.type = type; this.name = name; this.icon = icon; this.grade = grade; this.quality = quality; this.petBorder = petBorder; this.arkPassivePointText = arkPassivePointText; this.mainStatText = mainStatText; this.accOptions = accOptions; }
     }
 
-    private final LocalDateTime updatedAt;
+    /**
+     * 악세서리 연마 옵션 및 스톤 각인 상세 객체
+     */
+    @Getter
+    public static class AccOptionDetail {
+        private final String optionName; // 예: "낙인력", "구슬동자"
+        private final String valueText;  // 예: "+8.00%", "2"
+        private final String tierBadge;  // 예: "상", "중", "하" (없으면 null)
 
-    // Entity,Dto -> Response DTO 변환 (정적 팩토리 메서드)
-    public static CharacterInfoResponse from(Character character,
-                                             CharacterInfoDto characterInfoDto,
-                                             CharacterArkPassiveDto characterArkPassiveDto,
-                                             CharacterArkGridDto characterArkGridDto,
-                                             CharacterEngravingsDto characterEngravingsDto,
-                                             CharacterCardsDto characterCardsDto,
-                                             CharacterEquipmentDto characterEquipmentDto) {
-        return new CharacterInfoResponse(character, characterInfoDto, characterArkPassiveDto, characterArkGridDto, characterEngravingsDto, characterCardsDto, characterEquipmentDto);
-    }
-
-    private CharacterInfoResponse(Character character,
-                                  CharacterInfoDto characterInfoDto,
-                                  CharacterArkPassiveDto characterArkPassiveDto,
-                                  CharacterArkGridDto characterArkGridDto,
-                                  CharacterEngravingsDto characterEngravingsDto,
-                                  CharacterCardsDto characterCardsDto,
-                                  CharacterEquipmentDto characterEquipmentDto) {
-        this.id                 = character.getId();
-        this.characterName      = character.getCharacterName();
-        this.serverName         = character.getServerName();
-        this.characterClassName = character.getCharacterClassName();
-        this.characterLevel     = character.getCharacterLevel();
-        this.expeditionLevel    = character.getExpeditionLevel();
-        this.itemAvgLevel       = character.getItemAvgLevel();
-        this.itemAvgLevelDouble = character.getItemAvgLevelDouble();
-        this.combatPower        = character.getCombatPower();
-        this.combatPowerDouble  = character.getCombatPowerDouble();
-        this.title              = character.getTitle();
-        this.guildName          = character.getGuildName();
-        this.guildMemberGrade   = character.getGuildMemberGrade();
-        this.townLevel          = character.getTownLevel();
-        this.townName           = character.getTownName();
-        this.usingSkillPoint    = character.getUsingSkillPoint();
-        this.totalSkillPoint    = character.getTotalSkillPoint();
-        this.honorPoint         = character.getHonorPoint();
-        this.characterImage     = character.getCharacterImage();
-        this.symbol             = character.getSymbol();
-        this.decorationEmblems  = character.getDecorationEmblems();
-        this.updatedAt          = character.getUpdatedAt();
-
-        // 스탯 필터링 및 가공
-        List<CharacterInfoDto.StatDto> rawStats = characterInfoDto.getStats();
-        List<String> combatTargets = List.of("치명", "특화", "제압", "신속", "인내", "숙련");
-
-        this.combatStats = rawStats.stream()
-                .filter(s -> combatTargets.contains(s.getType()))
-                .map(s -> new StatResponse(s.getType(), s.getValue()))
-                .toList();
-
-        String ap = rawStats.stream().filter(s -> "공격력".equals(s.getType())).findFirst().map(CharacterInfoDto.StatDto::getValue).orElse("0");
-        String hp = rawStats.stream().filter(s -> "최대 생명력".equals(s.getType())).findFirst().map(CharacterInfoDto.StatDto::getValue).orElse("0");
-        this.baseStats = new BaseStatResponse(ap, hp);
-
-        this.tendencies = characterInfoDto.getTendencies();
-        this.decorations = characterInfoDto.getDecorations();
-
-        // 아크 패시브 가공 (툴팁 파싱 로직 호출)
-        this.arkPassiveTitle = characterArkPassiveDto.getTitle();
-        this.isArkPassive = characterArkPassiveDto.getIsArkPassive();
-        this.arkPassivePoints = characterArkPassiveDto.getPoints();
-        this.arkPassiveEffects = characterArkPassiveDto.getEffects().stream()
-                .map(e -> {
-                    // 툴팁 파싱
-                    List<EffectDetail> details = DataUtil.parseTooltipForArkPassive(e.getTooltip());
-
-                    // details 가공
-                    String title = details.isEmpty() ? "" : details.get(0).getTitle();
-                    String level = details.isEmpty() ? "" : details.get(0).getLevel();
-                    String desc  = details.isEmpty() ? "" : details.get(0).getDescription();
-
-                    // 3. 평면화된 DTO로 생성
-                    return new ArkPassiveEffectResponse(e.getName(), e.getIcon(), title, level, desc);
-                })
-                .toList();
-
-        // 아크 그리드 가공 (툴팁 파싱 로직 호출)
-        this.arkGridSlots = characterArkGridDto.getSlots().stream()
-                .map(s -> new ArkGridSlotResponse(s.getName(), s.getGrade(), s.getPoint(), DataUtil.parseTooltip(s.getTooltip())))
-                .toList();
-        this.arkGridEffects = characterArkGridDto.getEffects();
-
-        // 각인 가공
-        this.engravingsArkPassiveEffects = DataUtil.parseTooltipForEngravings(characterEngravingsDto.getArkPassiveEffects());
-
-        // 카드 리스트 가공
-        this.cards = characterCardsDto.getCardsDTO() == null ? List.of() :
-            characterCardsDto.getCardsDTO().stream()
-             .map(c -> new CardResponse(c.getName(), c.getIcon(), c.getGrade(), c.getAwakeCount()))
-            .toList();
-
-        // 카드 세트 이름, 효과
-        this.cardSetName = DataUtil.parseCardSetName(characterCardsDto);
-        this.cardSetEffects = DataUtil.parseCardSetEffects(characterCardsDto);
-
-        // 캐릭터 장비
-        this.Equipments = DataUtil.parseEquipmentResponse(characterEquipmentDto);
+        public AccOptionDetail(String optionName, String valueText, String tierBadge) {
+            this.optionName = optionName;
+            this.valueText = valueText;
+            this.tierBadge = tierBadge;
+        }
     }
 }
