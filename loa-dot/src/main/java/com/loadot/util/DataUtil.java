@@ -3,6 +3,7 @@ package com.loadot.util;
 import com.loadot.dto.CharacterCardsDto;
 import com.loadot.dto.CharacterEngravingsDto;
 import com.loadot.dto.CharacterEquipmentDto;
+import com.loadot.dto.CharacterGemsDto;
 import com.loadot.dto.response.CharacterInfoResponse;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -282,6 +283,50 @@ public class DataUtil {
                     );
                 })
                 .toList();
+    }
+
+    /** 보석 슬롯에 스킬 매칭 */
+    public static List<CharacterInfoResponse.GemResponse> parseGems(CharacterGemsDto gemsDto) {
+        if (gemsDto == null || gemsDto.getGems() == null || gemsDto.getGems().isEmpty()) {
+            return List.of();
+        }
+
+        List<CharacterGemsDto.SkillEffectDto> skills = gemsDto.getEffects() == null
+                || gemsDto.getEffects().getSkills() == null
+                ? List.of()
+                : gemsDto.getEffects().getSkills();
+
+        return gemsDto.getGems().stream()
+                .filter(java.util.Objects::nonNull)
+                .map(gem -> {
+                    CharacterGemsDto.SkillEffectDto skill = gem.getSlot() == null ? null : skills.stream()
+                            .filter(java.util.Objects::nonNull)
+                            .filter(candidate -> gem.getSlot().equals(candidate.getGemSlot()))
+                            .findFirst()
+                            .orElse(null);
+                    String type = parseGemType(gem.getTooltip());
+                    return new CharacterInfoResponse.GemResponse(
+                            gem.getSlot(), gem.getIcon(), gem.getLevel(), type,
+                            skill == null ? null : skill.getName(),
+                            skill == null ? null : skill.getIcon());
+                })
+                .toList();
+    }
+
+    private static String parseGemType(String tooltipJson) {
+        if (tooltipJson == null || tooltipJson.isBlank()) return null;
+        try {
+            JsonNode root = objectMapper.readTree(tooltipJson);
+            String type = cleanHtml(root.path("Element_000").path("value").asString()).trim();
+            if (type.isEmpty()) type = cleanHtml(root.path("Element_000").asString()).trim();
+            for (String supported : List.of("멸화", "홍염", "겁화", "작열", "광휘")) {
+                if (type.contains(supported)) return supported;
+            }
+            return null;
+        } catch (Exception e) {
+            log.warn("보석 툴팁 파싱 실패: {}", e.getMessage());
+            return null;
+        }
     }
     /**
      * 연마 효과 문장 파싱

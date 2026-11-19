@@ -66,6 +66,9 @@ public class CharacterInfoResponse {
     private final String cardSetName;
     private final List<String> cardSetEffects;
 
+    // 보석
+    private final List<GemResponse> gems;
+
     // 캐릭터 장비
     private final List<CharacterInfoResponse.EquipmentResponse> equipments;
     private final LocalDateTime updatedAt;
@@ -76,7 +79,8 @@ public class CharacterInfoResponse {
                                   CharacterArkGridDto characterArkGridDto,
                                   CharacterEngravingsDto characterEngravingsDto,
                                   CharacterCardsDto characterCardsDto,
-                                  List<CharacterEquipmentDto> characterEquipmentDtoList) {
+                                  List<CharacterEquipmentDto> characterEquipmentDtoList,
+                                  CharacterGemsDto characterGemsDto) {
         this.id                 = character.getId();
         this.characterName      = character.getCharacterName();
         this.serverName         = character.getServerName();
@@ -154,6 +158,8 @@ public class CharacterInfoResponse {
         this.cardSetName = DataUtil.parseCardSetName(characterCardsDto);
         this.cardSetEffects = DataUtil.parseCardSetEffects(characterCardsDto);
 
+        this.gems = DataUtil.parseGems(characterGemsDto);
+
         // 캐릭터 장비
         this.equipments = DataUtil.parseEquipmentResponse(characterEquipmentDtoList);
     }
@@ -165,8 +171,9 @@ public class CharacterInfoResponse {
                                              CharacterArkGridDto characterArkGridDto,
                                              CharacterEngravingsDto characterEngravingsDto,
                                              CharacterCardsDto characterCardsDto,
-                                             List<CharacterEquipmentDto> characterEquipmentDtoList) {
-        return new CharacterInfoResponse(character, characterInfoDto, characterArkPassiveDto, characterArkGridDto, characterEngravingsDto, characterCardsDto, characterEquipmentDtoList);
+                                             List<CharacterEquipmentDto> characterEquipmentDtoList,
+                                             CharacterGemsDto characterGemsDto) {
+        return new CharacterInfoResponse(character, characterInfoDto, characterArkPassiveDto, characterArkGridDto, characterEngravingsDto, characterCardsDto, characterEquipmentDtoList, characterGemsDto);
     }
 
     @Getter
@@ -233,6 +240,25 @@ public class CharacterInfoResponse {
             this.image = image;
             this.grade = grade;
             this.awakeCount = awakeCount;
+        }
+    }
+
+    @Getter
+    public static class GemResponse {
+        private final Integer slot;
+        private final String icon;
+        private final Integer level;
+        private final String type;
+        private final String skillName;
+        private final String skillIcon;
+
+        public GemResponse(Integer slot, String icon, Integer level, String type, String skillName, String skillIcon) {
+            this.slot = slot;
+            this.icon = icon;
+            this.level = level;
+            this.type = type;
+            this.skillName = skillName;
+            this.skillIcon = skillIcon;
         }
     }
 

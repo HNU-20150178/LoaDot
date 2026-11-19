@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -75,6 +77,14 @@ public class CharacterService {
                 .bodyToMono(CharacterCardsDto.class)
                 .block();
 
+        // 로스트아크 API 호출 (캐릭터 보석 가져오기)
+        CharacterGemsDto characterGemsDto = lostarkWebClient.get()
+                .uri("/armories/characters/" + characterName + "/gems")
+                .retrieve()
+                .bodyToMono(CharacterGemsDto.class)
+                .onErrorResume(WebClientResponseException.NotFound.class, error -> Mono.empty())
+                .block();
+
         // DB에서 기존 캐릭터 확인 (없으면 신규 생성, 있으면 업데이트)
         Character character = characterRepository.findByCharacterName(characterName)
                 .map(existing -> existing.update(characterInfodto))
@@ -84,7 +94,7 @@ public class CharacterService {
         this.recordCharacterHistory(character);
 
         // Entity -> Response DTO 변환 후 반환
-        return CharacterInfoResponse.from(character, characterInfodto, characterArkPassivedto, characterArkGridDto, characterEngravingsDto, characterCardsDto, characterEquipmentList);
+        return CharacterInfoResponse.from(character, characterInfodto, characterArkPassivedto, characterArkGridDto, characterEngravingsDto, characterCardsDto, characterEquipmentList, characterGemsDto);
     }
 
     /**
