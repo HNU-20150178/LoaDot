@@ -128,18 +128,11 @@ const accessoryList = computed(() => {
 
 <style scoped>
 .equipment-container {
-  padding: 20px;
-  border-radius: 12px;
+  min-width: 0;
 }
 
 .section-title {
   font-size: 16px;
-  font-weight: 700;
-  color: #f8fafc;
-  margin-top: 0;
-  margin-bottom: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 8px;
 }
 
 /* 2열 좌우 레이아웃 */
@@ -160,10 +153,10 @@ const accessoryList = computed(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--detail-surface);
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--detail-border);
 }
 
 /* 아이콘 박스 */

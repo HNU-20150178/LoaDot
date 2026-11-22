@@ -1,0 +1,39 @@
+:root {
+  --detail-panel: rgba(15, 18, 24, 0.82);
+  --detail-surface: rgba(255, 255, 255, 0.045);
+  --detail-border: rgba(255, 255, 255, 0.09);
+  --detail-accent: #ff9900;
+}
+
+.detail-section-card,
+.equipment-container.glass,
+.no-data.glass {
+  box-sizing: border-box;
+  padding: 20px;
+  border: 1px solid var(--detail-border);
+  border-radius: 12px;
+  background: var(--detail-panel);
+  backdrop-filter: blur(12px);
+}
+
+.detail-section-title,
+.equipment-container .section-title {
+  margin: 0 0 16px;
+  padding: 0 0 8px;
+  border-bottom: 1px solid var(--detail-border);
+  color: #f8fafc;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.equipment-container .equip-slot {
+  background: var(--detail-surface);
+  border-color: var(--detail-border);
+}
+
+@media (max-width: 480px) {
+  .detail-section-card,
+  .equipment-container.glass,
+  .no-data.glass { padding: 16px; }
+}
