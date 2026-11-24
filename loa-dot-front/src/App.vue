@@ -17,10 +17,11 @@ import AppHeader from './components/AppHeader.vue'
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  width: 100%;
   min-height: 100vh;
-  background-color: #121212;
-  color: #e0e0e0;
+  background-color: var(--loa-bg);
+  color: var(--loa-text);
   font-family: 'Apple SD Gothic Neo', sans-serif;
 }
 </style>

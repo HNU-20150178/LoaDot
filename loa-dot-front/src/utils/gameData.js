@@ -1,15 +1,15 @@
 export const GRADE_COLORS = {
-  '일반': '#ffffff',
-  '고급': '#00b050',
-  '희귀': '#00b5ff',
-  '영웅': '#ce43fc',
-  '전설': '#ff9900',
-  '유물': '#ea6000',
-  '고대': '#CDB89A',
-  '에스더': '#4afbe6'
+  '일반': 'var(--loa-grade-common)',
+  '고급': 'var(--loa-grade-uncommon)',
+  '희귀': 'var(--loa-grade-rare)',
+  '영웅': 'var(--loa-grade-epic)',
+  '전설': 'var(--loa-grade-legendary)',
+  '유물': 'var(--loa-grade-relic)',
+  '고대': 'var(--loa-grade-ancient)',
+  '에스더': 'var(--loa-grade-esther)'
 }
 
-export const getGradeColor = (grade) => GRADE_COLORS[grade] || '#94a3b8'
+export const getGradeColor = (grade) => GRADE_COLORS[grade] || 'var(--loa-muted)'
 
 export const QUALITY_COLORS = {
   NONE: '#a6a6a6',

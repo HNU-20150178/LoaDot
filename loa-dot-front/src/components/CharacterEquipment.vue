@@ -5,6 +5,7 @@
     <div class="equipment-layout">
       <!-- 1. 좌측: 무기, 방어구, 완갑 (7부위) -->
       <div class="equipment-column left">
+        <h4 class="equipment-group-title">무기 · 방어구</h4>
         <div 
           v-for="item in armorList" 
           :key="item.type" 
@@ -50,6 +51,7 @@
 
       <!-- 2. 우측: 장신구 & 어빌리티 스톤 & 팔찌 (8부위) -->
       <div class="equipment-column right">
+        <h4 class="equipment-group-title">장신구 · 팔찌 · 어빌리티 스톤</h4>
         <div 
           v-for="item in accessoryList" 
           :key="item.type" 
@@ -147,6 +149,7 @@ const accessoryList = computed(() => {
   flex-direction: column;
   gap: 10px;
 }
+.equipment-group-title { margin: 0 0 1px; color: var(--loa-muted); font-size: 11px; font-weight: 700; letter-spacing: .04em; }
 
 /* 개별 아이템 슬롯 */
 .equip-slot {
@@ -167,7 +170,7 @@ const accessoryList = computed(() => {
   flex-shrink: 0;
   border-radius: 6px;
   border: 2px solid #334155;
-  background: #0f172a;
+  background: var(--loa-bg-raised);
   overflow: hidden;
   box-sizing: border-box;
 }
@@ -259,5 +262,8 @@ const accessoryList = computed(() => {
   .equipment-layout {
     grid-template-columns: 1fr;
   }
+}
+@media (min-width: 769px) and (max-width: 1200px) {
+  .equipment-layout { grid-template-columns: 1fr; }
 }
 </style>

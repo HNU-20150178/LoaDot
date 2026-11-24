@@ -21,10 +21,10 @@ defineProps({ engravings: { type: Array, default: () => [] } })
 </template>
 
 <style scoped>
-.engrave-passive-item { background: var(--detail-surface); border: 1px solid var(--detail-border); border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+.engrave-passive-item { background: var(--detail-surface); border: 1px solid var(--detail-border); border-radius: 8px; padding: 10px; margin-bottom: 8px; }
 .engrave-info { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; min-width: 0; flex-wrap: wrap; }
 .engrave-name { font-size: 13px; font-weight: 700; }
-.engrave-grade-badge { font-size: 10px; padding: 1px 4px; border-radius: 3px; background: rgba(255,255,255,.1); color: #aaa; }
+.engrave-grade-badge { font-size: 9px; padding: 2px 6px; border: 1px solid var(--loa-border); border-radius: 99px; background: rgba(255,255,255,.04); color: var(--loa-muted); }
 .stone-level { font-size: 10px; color: #00ccff; margin-left: auto; }
 .engrave-passive-desc { font-size: 11px; line-height: 1.4; color: #b0b8c4; margin: 0; white-space: pre-wrap; }
 .no-data { text-align: center; color: #666; font-size: 12px; padding: 20px 0; }

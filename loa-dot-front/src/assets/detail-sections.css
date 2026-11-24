@@ -1,39 +1,60 @@
 :root {
-  --detail-panel: rgba(15, 18, 24, 0.82);
-  --detail-surface: rgba(255, 255, 255, 0.045);
-  --detail-border: rgba(255, 255, 255, 0.09);
-  --detail-accent: #ff9900;
+  color-scheme: dark;
+  --loa-bg: #121318;
+  --loa-bg-raised: #181a21;
+  --loa-panel: #1b1d24;
+  --loa-slot: #23262f;
+  --loa-border: rgba(255, 255, 255, 0.08);
+  --loa-border-strong: rgba(255, 255, 255, 0.12);
+  --loa-text: #e7edf5;
+  --loa-muted: #91a0b4;
+  --loa-gold: #f59e0b;
+  --loa-gold-soft: #eab308;
+  --loa-grade-ancient: #cdb89a;
+  --loa-grade-relic: #ea6000;
+  --loa-grade-legendary: #ff9900;
+  --loa-grade-epic: #ce43fc;
+  --loa-grade-esther: #4afbe6;
+  --loa-grade-rare: #00b5ff;
+  --loa-grade-uncommon: #00b050;
+  --loa-grade-common: #cbd5e1;
+  --detail-panel: var(--loa-panel);
+  --detail-surface: var(--loa-slot);
+  --detail-border: var(--loa-border);
+  --detail-accent: var(--loa-gold);
 }
+
+html, body { background: var(--loa-bg); color: var(--loa-text); }
 
 .detail-section-card,
 .equipment-container.glass,
 .no-data.glass {
   box-sizing: border-box;
-  padding: 20px;
-  border: 1px solid var(--detail-border);
-  border-radius: 12px;
-  background: var(--detail-panel);
-  backdrop-filter: blur(12px);
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--loa-border);
+  border-radius: 11px;
+  background: linear-gradient(155deg, rgba(255,255,255,.025), transparent 34%), var(--loa-panel);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 10px 26px rgba(0,0,0,.16);
 }
 
 .detail-section-title,
 .equipment-container .section-title {
-  margin: 0 0 16px;
-  padding: 0 0 8px;
-  border-bottom: 1px solid var(--detail-border);
-  color: #f8fafc;
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 0 0 9px;
+  border-bottom: 1px solid var(--loa-border);
+  color: var(--loa-text);
+  font-size: 14px;
   font-weight: 700;
+  letter-spacing: .01em;
   text-align: left;
 }
 
-.equipment-container .equip-slot {
-  background: var(--detail-surface);
-  border-color: var(--detail-border);
-}
+.equipment-container .equip-slot { background: var(--loa-slot); border-color: var(--loa-border); }
 
 @media (max-width: 480px) {
-  .detail-section-card,
-  .equipment-container.glass,
-  .no-data.glass { padding: 16px; }
+  .detail-section-card, .equipment-container.glass, .no-data.glass { padding: 14px; }
 }

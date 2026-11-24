@@ -26,7 +26,7 @@ const filterEffects = (categoryName) => {
     <div v-for="point in points" :key="point.Name" class="ark-group">
       <div class="group-header" :class="getCategoryClass(point.Name)">
         <div class="header-left"><span class="category-dot" :class="getCategoryClass(point.Name)"></span><span class="group-name">{{ point.Name }}</span></div>
-        <div class="header-right"><span class="group-value">{{ point.Value }}</span><span v-if="point.Rank" class="group-rank">{{ point.Rank }}</span></div>
+        <div class="header-right"><span class="group-value">{{ point.Value }} P</span><span v-if="point.Rank" class="group-rank">{{ point.Rank }}</span></div>
       </div>
       <div class="effect-list">
         <div v-for="(effect, index) in filterEffects(point.Name)" :key="`${point.Name}-${effect.name}-${index}`" class="effect-row">
@@ -40,20 +40,20 @@ const filterEffects = (categoryName) => {
 </template>
 
 <style scoped>
-.passive-title { text-align: center; font-size: 13px; color: #888; margin-bottom: 16px; }
-.ark-group { margin-bottom: 18px; } .ark-group:last-child { margin-bottom: 0; }
-.group-header { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 8px; margin-bottom: 8px; }
-.group-header.evolution { background: rgba(234,179,8,.08); border: 1px solid rgba(234,179,8,.2); }
-.group-header.enlighten { background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.2); }
-.group-header.leap { background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.2); }
+.passive-title { text-align: left; font-size: 11px; color: var(--loa-muted); margin: -4px 0 12px; }
+.ark-group { margin-bottom: 12px; } .ark-group:last-child { margin-bottom: 0; }
+.group-header { display: flex; align-items: center; justify-content: space-between; padding: 7px 9px; border-radius: 7px; margin-bottom: 6px; background: var(--loa-slot); border: 1px solid var(--loa-border); }
+.group-header.evolution { border-color: rgba(234,179,8,.2); }
+.group-header.enlighten { border-color: rgba(96,165,250,.2); }
+.group-header.leap { border-color: rgba(74,251,230,.18); }
 .header-left { display: flex; align-items: center; gap: 8px; }
 .category-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.category-dot.evolution { background: #eab308; box-shadow: 0 0 6px rgba(234,179,8,.6); }
-.category-dot.enlighten { background: #3b82f6; box-shadow: 0 0 6px rgba(59,130,246,.6); }
-.category-dot.leap { background: #22c55e; box-shadow: 0 0 6px rgba(34,197,94,.6); }
-.group-name { font-size: 13px; font-weight: 700; } .evolution .group-name { color: #eab308; } .enlighten .group-name { color: #3b82f6; } .leap .group-name { color: #22c55e; }
+.category-dot.evolution { background: var(--loa-gold-soft); box-shadow: 0 0 5px rgba(234,179,8,.35); }
+.category-dot.enlighten { background: #8caef0; box-shadow: 0 0 5px rgba(96,165,250,.3); }
+.category-dot.leap { background: #72d9c8; box-shadow: 0 0 5px rgba(74,251,230,.25); }
+.group-name { font-size: 12px; font-weight: 700; } .evolution .group-name { color: var(--loa-gold-soft); } .enlighten .group-name { color: #9bbbf5; } .leap .group-name { color: #83d9ca; }
 .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
-.group-value { font-size: 13px; font-weight: 700; color: #f0f0f0; } .group-rank { font-size: 10px; color: #888; }
+.group-value { padding: 2px 7px; border: 1px solid var(--loa-border-strong); border-radius: 99px; font-size: 10px; font-weight: 750; color: var(--loa-text); background: rgba(255,255,255,.04); } .group-rank { font-size: 9px; color: var(--loa-muted); }
 .effect-list { display: flex; flex-direction: column; gap: 2px; padding: 0 4px; }
 .effect-row { display: flex; align-items: flex-start; gap: 8px; padding: 5px 8px; border-radius: 6px; transition: background .15s; }
 .effect-row:hover { background: rgba(255,255,255,.04); }

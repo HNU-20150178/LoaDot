@@ -99,8 +99,6 @@ const handleReset = () => {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
-
 .caracterCardWrap {
   position: relative;
   margin-top: 24px;
@@ -111,10 +109,7 @@ const handleReset = () => {
   overflow: hidden;
   font-family: 'Noto Sans KR', sans-serif;
   color: #e8dcc8;
-  box-shadow:
-    0 0 0 1px rgba(180,140,60,0.1),
-    0 20px 60px rgba(0, 0, 0, 0.7),
-    inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 12px 30px rgba(0,0,0,.2);
 }
 
 /* 배경 글로우 */
@@ -336,6 +331,51 @@ const handleReset = () => {
 .guild-icon {
   color: rgba(180, 140, 60, 0.6);
   font-size: 0.75rem;
+}
+
+/* Wide dashboard hero profile */
+.caracterCardWrap {
+  display: grid;
+  grid-template-columns: minmax(145px, 190px) minmax(0, 1fr);
+  grid-template-rows: auto auto auto 1fr;
+  column-gap: 16px;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  border-color: var(--loa-border);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(245,158,11,.07), transparent 48%), var(--loa-panel);
+  color: var(--loa-text);
+}
+.card-badges { grid-column: 2; grid-row: 1; padding: 14px 14px 0 0; }
+.image-section { grid-column: 1; grid-row: 1 / 5; min-height: 0; padding: 14px; }
+.image-wrapper { height: 100%; min-height: 210px; border-color: var(--loa-border-strong); background: var(--loa-bg-raised); }
+.character-image { height: 100%; min-height: 210px; }
+.character-title { grid-column: 2; grid-row: 2; padding: 12px 14px 4px 0; }
+.char-name { color: var(--loa-text); font-family: inherit; }
+.char-title-text { color: var(--loa-gold-soft); }
+.stats-grid { grid-column: 2; grid-row: 3; align-self: start; margin: 8px 14px 0 0; background: var(--loa-border); border-color: var(--loa-border); }
+.stat-item { background: var(--loa-slot); }
+.stat-item:hover { background: rgba(245,158,11,.08); }
+.stat-label { color: var(--loa-muted); }
+.stat-value { color: var(--loa-text); }
+.stat-value.combat { color: var(--loa-gold); }
+.card-footer { grid-column: 2; grid-row: 4; align-self: end; padding: 12px 14px 14px 0; }
+.guild-name { color: var(--loa-muted); }
+.guild-icon { color: var(--loa-gold); }
+.server-badge { background: rgba(96,165,250,.1); border-color: rgba(96,165,250,.24); color: #9bc5fa; }
+.class-badge { background: rgba(245,158,11,.08); border-color: rgba(245,158,11,.22); color: var(--loa-gold-soft); }
+.level-value { color: var(--loa-gold-soft); text-shadow: none; }
+
+@media (max-width: 560px) {
+  .caracterCardWrap { grid-template-columns: minmax(0,1fr); grid-template-rows: auto auto auto auto auto; }
+  .image-section { grid-column: 1; grid-row: 1; padding: 14px 14px 0; }
+  .image-wrapper { height: 190px; min-height: 0; }
+  .character-image { height: 190px; min-height: 0; }
+  .card-badges { grid-column: 1; grid-row: 2; padding: 12px 14px 0; }
+  .character-title { grid-column: 1; grid-row: 3; padding: 10px 14px 4px; }
+  .stats-grid { grid-column: 1; grid-row: 4; margin: 8px 14px 0; }
+  .card-footer { grid-column: 1; grid-row: 5; padding: 10px 14px 14px; }
 }
 
 </style>

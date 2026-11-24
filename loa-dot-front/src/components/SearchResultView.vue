@@ -4,21 +4,16 @@
     <div class="status-msg" v-if="loading">로딩 중...</div>
     <div class="status-msg" v-else-if="errorMsg">{{ errorMsg }}</div>
     
-    <div class="content-layout" v-else-if="characterData">
-      <aside class="profile-sidebar">
-        <CharacterCard 
-          :characterData="characterData"
-          @reset="goHome"
-        />
+    <div class="dashboard-layout" v-else-if="characterData">
+      <aside class="dashboard-sidebar">
+        <CharacterCard :characterData="characterData" @reset="goHome" />
+        <CharacterBaseStats :base-stats="characterData.baseStats" :combat-stats="characterData.combatStats" />
+        <CharacterEngravings :engravings="characterData.engravingsArkPassiveEffects" />
       </aside>
-      
-      <CharacterEquipment 
-        :characterData="characterData"
-      />
-      <main class="detail-main">
-        <CharacterDetail 
-          :characterData="characterData"
-        />
+
+      <main class="dashboard-main">
+        <CharacterEquipment :characterData="characterData" />
+        <CharacterDetail :characterData="characterData" />
       </main>
     </div>
   </div>
@@ -31,6 +26,8 @@ import { characterAPI } from '../services/api'
 import CharacterCard from './CharacterCard.vue'
 import CharacterDetail from './CharacterDetail.vue'
 import CharacterEquipment from './CharacterEquipment.vue'
+import CharacterBaseStats from './detail/CharacterBaseStats.vue'
+import CharacterEngravings from './detail/CharacterEngraving.vue'
 
 const props = defineProps({
   characterName: { type: String, required: true }
@@ -96,34 +93,21 @@ const goHome = () => {
   box-sizing: border-box;
 }
 
-.content-layout {
-  display: flex;
-  gap: 24px;
-  align-items: flex-start;
-  width: 100%;
-}
-
-.profile-sidebar {
-  flex-shrink: 0;
-  width: 320px;
-}
-
-.detail-main {
-  flex: 1;
-  min-width: 0;
-}
+.dashboard-layout { display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); gap: 16px; width: 100%; max-width: 1700px; margin: 0 auto; align-items: start; }
+.dashboard-sidebar, .dashboard-main { display: grid; gap: 12px; min-width: 0; }
+.dashboard-main { gap: 14px; }
 
 .status-msg {
   margin: 20px 0;
   font-size: 1.2rem;
 }
 
-@media (max-width: 1024px) {
-  .content-layout {
-    flex-direction: column;
-  }
-  .profile-sidebar {
-    width: 100%;
-  }
+@media (max-width: 1023px) {
+  .dashboard-layout { grid-template-columns: minmax(0, 1fr); }
+  .dashboard-sidebar { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .search-result-container { padding-inline: 12px; }
+  .dashboard-layout, .dashboard-sidebar, .dashboard-main { gap: 12px; }
 }
 </style>
